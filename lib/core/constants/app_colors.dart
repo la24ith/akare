@@ -21,4 +21,18 @@ class AppColors {
 
   static const Color border = Color(0xFFE5E7EB);
   static const Color favoriteRed = Color(0xFFE84C4C);
+  static const accent = Color(0xFFE7A94C); // warm gold — price, badges
+  static const saleBadge = Color(0xFF0E6E5C);
+  static const rentBadge = Color(0xFF3E6FE0);
+
+  static const divider = Color(0xFFE7ECEA);
+
+  static const shimmerBase = Color(0xFFE9EDEC);
+  static const shimmerHighlight = Color(0xFFF6F8F7);
+
+  static const heroGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [primary, primaryDark],
+  );
 }
