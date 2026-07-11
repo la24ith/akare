@@ -1,8 +1,15 @@
 import 'dart:async';
+import 'package:akare/features/agent_dashboard/presentation/screens/agent_dashboard_screen.dart';
+import 'package:akare/features/agent_profile/presentation/screens/agent_profile_screen.dart';
+import 'package:akare/features/auth/domain/usecases/user_session.dart';
+import 'package:akare/features/my_properties/presentation/screens/my_properties_screen.dart';
 import 'package:akare/features/property_details/presentation/screens/property_details_screen.dart';
+import 'package:akare/features/property_form/presentation/screens/property_form_screen.dart';
 import 'package:akare/features/search/presentation/screens/search_screen.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../network/supabase_client.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
@@ -14,41 +21,81 @@ import '../../features/home/presentation/screens/home_screen.dart';
 final GoRouter appRouter = GoRouter(
   initialLocation: '/login',
   refreshListenable: GoRouterRefreshStream(supabase.auth.onAuthStateChange),
-  redirect: (context, state) {
+  redirect: (context, state) async {
     final isLoggedIn = supabase.auth.currentSession != null;
-    final isAuthRoute = ['/login', '/register', '/forgot-password']
-        .contains(state.matchedLocation);
+    final isAuthRoute = [
+      '/login',
+      '/register',
+      '/forgot-password',
+    ].contains(state.matchedLocation);
 
-    // لو مش مسجل دخول وحاول يفتح صفحة محمية → رجّعه لصفحة الدخول
-    if (!isLoggedIn && !isAuthRoute) return '/login';
+    if (!isLoggedIn) {
+      userSession.clear();
+      return isAuthRoute ? null : '/login';
+    }
 
-    // لو مسجل دخول ومحاول يفتح صفحة تسجيل الدخول/التسجيل → رجّعه للرئيسية
-    if (isLoggedIn && isAuthRoute) return '/home';
+    // مسجل دخول وعلى صفحة auth (أو أول فتح للتطبيق بجلسة محفوظة) → حدّد وجهته حسب دوره
+    if (isAuthRoute) {
+      await userSession.loadRole(); // يجيب الدور مرة وحدة ويخزنه
+      return userSession.role == 'agent' ? '/agent/dashboard' : '/home';
+    }
 
-    return null; // لا يوجد إعادة توجيه
+    // حماية إضافية: لو مستخدم عادي حاول يفتح رابط وكيل يدويًا
+    if (state.matchedLocation.startsWith('/agent') &&
+        userSession.role != 'agent') {
+      return '/home';
+    }
+
+    return null;
   },
   routes: [
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
-    GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegisterScreen(),
+    ),
     GoRoute(
       path: '/forgot-password',
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
     GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
-GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
-    GoRoute(
-      path: '/search',
-      builder: (context, state) => const SearchScreen(),
-    ),
+    GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+    GoRoute(path: '/search', builder: (context, state) => const SearchScreen()),
     GoRoute(
       path: '/property/:id',
-      builder: (context, state) => PropertyDetailsScreen(
-        propertyId: state.pathParameters['id']!,
+      builder: (context, state) =>
+          PropertyDetailsScreen(propertyId: state.pathParameters['id']!),
+    ),
+    GoRoute(
+      path: "/agent/dashboard",
+      builder: (context, state) => const AgentDashboardScreen(),
+    ),
+    GoRoute(
+      path: "/agent/properties",
+      builder: (context, state) => const MyPropertiesScreen(),
+    ),
+    GoRoute(
+      path: "/agent/properties/add",
+      builder: (context, state) => const PropertyFormScreen(),
+    ),
+    GoRoute(
+      path: "/agent/properties/edit/:id",
+      builder: (context, state) =>
+          PropertyFormScreen(propertyId: state.pathParameters["id"]),
+    ),
+    GoRoute(
+      // تفاصيل عقار الوكيل — شاشة "My Property Detail" (القسم 3.4 بالمستند)
+      // لم تُبنَ ضمن هذه الدفعة؛ اربطها بشاشتك الفعلية عند بنائها.
+      path: "/agent/properties/:id",
+      builder: (context, state) => Scaffold(
+        appBar: AppBar(title: const Text("تفاصيل العقار")),
+        body: Center(child: Text("Property ID: ${state.pathParameters["id"]}")),
       ),
     ),
-
-    // TODO: أضف /agent/* لتطبيق الوكيل و /admin/* للوحة التحكم لاحقًا
-    // TODO: أضف /agent/* لتطبيق الوكيل و /admin/* للوحة التحكم لاحقًا
+    GoRoute(
+      path: "/agent/profile",
+      builder: (context, state) => const AgentProfileScreen(),
+    ),
   ],
 );
 
@@ -68,4 +115,38 @@ class GoRouterRefreshStream extends ChangeNotifier {
     _subscription.cancel();
     super.dispose();
   }
+}
+
+Future<String?> agentRedirectLogic(
+  BuildContext context,
+  GoRouterState state,
+  Session? session,
+) async {
+  final loggingIn = state.matchedLocation == "/login";
+  if (session == null) {
+    return loggingIn ? null : "/login";
+  }
+
+  // اجلب الدور من جدول users (يفضّل تخزينه بذاكرة مؤقتة/Cubit عام بعد تسجيل الدخول
+  // بدل استعلامه بكل مرة redirect، لتفادي بطء التنقل)
+  final client = Supabase.instance.client;
+  final userRow = await client
+      .from("users")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
+  final role = userRow["role"] as String;
+
+  final isAgentRoute = state.matchedLocation.startsWith("/agent");
+
+  if (loggingIn) {
+    return role == "agent" ? "/agent/dashboard" : "/home";
+  }
+
+  // امنع مستخدم عادي من فتح روابط الوكيل، والعكس اختياري حسب رغبتك
+  if (isAgentRoute && role != "agent") {
+    return "/home";
+  }
+
+  return null;
 }

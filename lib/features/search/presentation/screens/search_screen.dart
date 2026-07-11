@@ -233,7 +233,9 @@ class _SearchViewState extends State<_SearchView> {
                 }
 
                 if (state.isEmpty) {
-                  return const EmptyProperties();
+                  return const EmptyProperties(
+                    message: ' لا توجد عقارات مطابقة لبحثك',
+                  );
                 }
 
                 return state.viewMode == ViewMode.grid

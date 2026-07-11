@@ -1,3 +1,32 @@
+import 'package:akare/features/agent_dashboard/data/datasources/agent_dashboard_remote_datasource.dart';
+import 'package:akare/features/agent_dashboard/data/repositories/agent_dashboard_repository_impl.dart';
+import 'package:akare/features/agent_dashboard/domain/repositories/agent_dashboard_repository.dart';
+import 'package:akare/features/agent_dashboard/domain/usecases/get_dashboard_stats_usecase.dart';
+import 'package:akare/features/agent_dashboard/presentation/cubit/agent_dashboard_cubit.dart';
+import 'package:akare/features/agent_profile/data/datasources/agent_profile_remote_datasource.dart';
+import 'package:akare/features/agent_profile/data/repositories/agent_profile_repository_impl.dart';
+import 'package:akare/features/agent_profile/domain/repositories/agent_profile_repository.dart';
+import 'package:akare/features/agent_profile/domain/usecases/get_agent_profile_usecase.dart';
+import 'package:akare/features/agent_profile/domain/usecases/sign_out_usecase.dart';
+import 'package:akare/features/agent_profile/domain/usecases/update_agent_profile_usecase.dart';
+import 'package:akare/features/agent_profile/presentation/cubit/agent_profile_cubit.dart';
+import 'package:akare/features/auth/domain/usecases/user_session.dart';
+import 'package:akare/features/my_properties/data/datasources/my_properties_remote_datasource.dart';
+import 'package:akare/features/my_properties/data/repositories/my_properties_repository_impl.dart';
+import 'package:akare/features/my_properties/domain/repositories/my_properties_repository.dart';
+import 'package:akare/features/my_properties/domain/usecases/delete_property_usecase.dart';
+import 'package:akare/features/my_properties/domain/usecases/get_my_properties_usecase.dart';
+import 'package:akare/features/my_properties/domain/usecases/update_property_status_usecase.dart';
+import 'package:akare/features/my_properties/presentation/cubit/my_properties_cubit.dart';
+import 'package:akare/features/property_form/data/datasources/property_form_remote_datasource.dart';
+import 'package:akare/features/property_form/data/repositories/property_form_repository_impl.dart';
+import 'package:akare/features/property_form/domain/repositories/property_form_repository.dart';
+import 'package:akare/features/property_form/domain/usecases/delete_property_image_usecase.dart';
+import 'package:akare/features/property_form/domain/usecases/get_form_lookups_usecase.dart';
+import 'package:akare/features/property_form/domain/usecases/get_property_for_edit_usecase.dart';
+import 'package:akare/features/property_form/domain/usecases/submit_property_usecase.dart';
+import 'package:akare/features/property_form/domain/usecases/upload_property_image_usecase.dart';
+import 'package:akare/features/property_form/presentation/cubit/property_form_cubit.dart';
 import 'package:get_it/get_it.dart';
 
 import '../network/supabase_client.dart';
@@ -118,5 +147,79 @@ Future<void> init() async {
       getPropertyTypes: sl<GetPropertyTypesUseCase>(), // مشترك مع Home
       searchProperties: sl(),
     ),
+  );
+  registerAgentFeatureDependencies();
+}
+
+void registerAgentFeatureDependencies() {
+  // ---------------- Agent Dashboard ----------------
+  sl.registerFactory(() => AgentDashboardCubit(sl()));
+  sl.registerLazySingleton(() => GetDashboardStatsUseCase(sl()));
+  sl.registerLazySingleton<AgentDashboardRepository>(
+    () => AgentDashboardRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<AgentDashboardRemoteDataSource>(
+    () => AgentDashboardRemoteDataSourceImpl(supabase), // كان sl()
+  );
+
+  // ---------------- My Properties ----------------
+  sl.registerFactory(
+    () => MyPropertiesCubit(
+      getMyPropertiesUseCase: sl(),
+      deletePropertyUseCase: sl(),
+      updatePropertyStatusUseCase: sl(),
+    ),
+  );
+  sl.registerLazySingleton(() => GetMyPropertiesUseCase(sl()));
+  sl.registerLazySingleton(() => DeletePropertyUseCase(sl()));
+  sl.registerLazySingleton(() => UpdatePropertyStatusUseCase(sl()));
+  sl.registerLazySingleton<MyPropertiesRepository>(
+    () => MyPropertiesRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<MyPropertiesRemoteDataSource>(
+    () => MyPropertiesRemoteDataSourceImpl(supabase), // كان sl()
+  );
+
+  // ---------------- Property Form ----------------
+  sl.registerFactory(
+    () => PropertyFormCubit(
+      getFormLookupsUseCase: sl(),
+      getPropertyForEditUseCase: sl(),
+      submitPropertyUseCase: sl(),
+      uploadPropertyImageUseCase: sl(),
+      deletePropertyImageUseCase: sl(),
+    ),
+  );
+  sl.registerLazySingleton(() => GetFormLookupsUseCase(sl()));
+  sl.registerLazySingleton(() => GetPropertyForEditUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitPropertyUseCase(sl()));
+  sl.registerLazySingleton(() => UploadPropertyImageUseCase(sl()));
+  sl.registerLazySingleton(() => DeletePropertyImageUseCase(sl()));
+  sl.registerLazySingleton<PropertyFormRepository>(
+    () => PropertyFormRepositoryImpl(
+      sl(),
+      supabase,
+    ), // الباراميتر الثاني: كان sl()، صار supabase
+  );
+  sl.registerLazySingleton<PropertyFormRemoteDataSource>(
+    () => PropertyFormRemoteDataSourceImpl(supabase), // كان sl()
+  );
+
+  // ---------------- Agent Profile ----------------
+  sl.registerFactory(
+    () => AgentProfileCubit(
+      getAgentProfileUseCase: sl(),
+      updateAgentProfileUseCase: sl(),
+      signOutUseCase: sl(),
+    ),
+  );
+  sl.registerLazySingleton(() => GetAgentProfileUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateAgentProfileUseCase(sl()));
+  sl.registerLazySingleton(() => SignOutUseCase(sl()));
+  sl.registerLazySingleton<AgentProfileRepository>(
+    () => AgentProfileRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<AgentProfileRemoteDataSource>(
+    () => AgentProfileRemoteDataSourceImpl(supabase), // كان sl()
   );
 }

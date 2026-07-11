@@ -314,7 +314,9 @@ class _LatestListSliver extends StatelessWidget {
         }
 
         if (state.isLatestEmpty) {
-          return const SliverToBoxAdapter(child: EmptyProperties());
+          return const SliverToBoxAdapter(
+            child: EmptyProperties(message: 'لا توجد عقارات متاحة حالياً'),
+          );
         }
 
         return SliverList.builder(

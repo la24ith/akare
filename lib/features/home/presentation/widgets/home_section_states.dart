@@ -85,7 +85,7 @@ class SectionError extends StatelessWidget {
 }
 
 class EmptyProperties extends StatelessWidget {
-  const EmptyProperties({super.key});
+  const EmptyProperties({super.key, required String message});
 
   @override
   Widget build(BuildContext context) {
