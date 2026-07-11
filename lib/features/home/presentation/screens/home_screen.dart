@@ -1,7 +1,9 @@
 import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/di/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+// exposes `sl` (GetIt.instance) — adjust path/name if yours differs
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../widgets/category_chip.dart';
@@ -10,21 +12,36 @@ import '../widgets/home_section_states.dart';
 import '../widgets/home_shimmer.dart';
 import '../widgets/property_card.dart';
 
-class HomeScreen extends StatefulWidget {
+/// Public entry point. Provides its own [HomeCubit] so this screen works
+/// no matter how it's pushed (`Navigator.push`, `IndexedStack` in a bottom
+/// nav bar, GoRouter, etc.) without the caller needing to remember to wrap
+/// it in a BlocProvider.
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<HomeCubit>()..loadHome(),
+      child: const _HomeView(),
+    );
+  }
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeView extends StatefulWidget {
+  const _HomeView();
+
+  @override
+  State<_HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<_HomeView> {
   final _scrollController = ScrollController();
   int? _selectedCategoryId;
 
   @override
   void initState() {
     super.initState();
-    context.read<HomeCubit>().loadHome();
     _scrollController.addListener(_onScroll);
   }
 

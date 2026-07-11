@@ -7,11 +7,11 @@ class PropertyTypeModel extends PropertyTypeEntity {
     required super.iconName,
   });
 
-  factory PropertyTypeModel.fromJson(Map<String, dynamic> json) {
+  factory PropertyTypeModel.fromSupabase(Map<String, dynamic> row) {
     return PropertyTypeModel(
-      id: json['id'],
-      nameAr: json['name_ar'] ?? '',
-      iconName: json['icon_name'] ?? 'home',
+      id: row['id'],
+      nameAr: row['name_ar'] ?? '',
+      iconName: row['icon_name'] ?? 'home',
     );
   }
 }

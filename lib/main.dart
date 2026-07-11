@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/di/injection_container.dart' as di;
@@ -9,13 +10,11 @@ import 'core/theme/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 1) تهيئة Supabase أولًا (لازم تحصل قبل أي شيء تاني)
   await Supabase.initialize(
-    url: SupabaseConfig.url,
-    anonKey: SupabaseConfig.anonKey,
+    url: 'https://sowkmrqrmpciklebwqxy.supabase.co',
+    anonKey: 'sb_publishable_Hxr2XbRx3KYfimYu_h-QKw_BhQEzPp9',
   );
 
-  // 2) تهيئة حاوية الحقن (GetIt) بعد جاهزية Supabase
   await di.init();
 
   runApp(const RealEstateApp());
@@ -27,11 +26,22 @@ class RealEstateApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: ' عقاري',
+      title: 'منصة عقارية',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+
+      // ---- دعم اللغة العربية ----
       locale: const Locale('ar'),
       supportedLocales: const [Locale('ar'), Locale('en')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations
+            .delegate, // تعريب الأزرار/الحوارات الجاهزة (Material)
+        GlobalWidgetsLocalizations
+            .delegate, // اتجاه النص RTL/LTR للـ Widgets الأساسية
+        GlobalCupertinoLocalizations
+            .delegate, // تعريب مكونات Cupertino (لو استُخدمت)
+      ],
+
       routerConfig: appRouter,
       builder: (context, child) {
         return Directionality(

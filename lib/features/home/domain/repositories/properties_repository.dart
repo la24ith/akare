@@ -1,5 +1,6 @@
-import 'package:akare/core/errors/failures.dart';
 import 'package:dartz/dartz.dart';
+
+import 'package:akare/core/errors/failures.dart';
 import '../entities/property_entity.dart';
 import '../entities/property_type_entity.dart';
 

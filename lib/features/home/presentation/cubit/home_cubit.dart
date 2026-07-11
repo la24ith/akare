@@ -1,6 +1,7 @@
-import 'package:akare/core/usecace/usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:akare/core/errors/failures.dart';
+import 'package:akare/core/usecace/usecase.dart';
 import '../../domain/usecases/get_featured_properties_usecase.dart';
 import '../../domain/usecases/get_latest_properties_usecase.dart';
 import '../../domain/usecases/get_property_types_usecase.dart';

@@ -46,12 +46,12 @@ class _RegisterViewState extends State<_RegisterView> {
       return;
     }
     context.read<AuthCubit>().register(
-          fullName: _nameController.text.trim(),
-          email: _emailController.text.trim(),
-          phone: _phoneController.text.trim(),
-          password: _passwordController.text,
-          role: _selectedRole,
-        );
+      fullName: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      phone: _phoneController.text.trim(),
+      password: _passwordController.text,
+      role: _selectedRole,
+    );
   }
 
   @override
@@ -64,8 +64,12 @@ class _RegisterViewState extends State<_RegisterView> {
             if (state is AuthSuccess) {
               context.go('/home');
             } else if (state is AuthError) {
+              debugPrint('AuthError: ${state.message}');
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message), backgroundColor: AppColors.error),
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: AppColors.error,
+                ),
               );
             }
           },
@@ -79,7 +83,10 @@ class _RegisterViewState extends State<_RegisterView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('نوع الحساب', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text(
+                      'نوع الحساب',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -88,7 +95,8 @@ class _RegisterViewState extends State<_RegisterView> {
                             label: 'مستخدم',
                             icon: Icons.person_outline,
                             selected: _selectedRole == UserRole.user,
-                            onTap: () => setState(() => _selectedRole = UserRole.user),
+                            onTap: () =>
+                                setState(() => _selectedRole = UserRole.user),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -97,7 +105,8 @@ class _RegisterViewState extends State<_RegisterView> {
                             label: 'وكيل عقاري',
                             icon: Icons.badge_outlined,
                             selected: _selectedRole == UserRole.agent,
-                            onTap: () => setState(() => _selectedRole = UserRole.agent),
+                            onTap: () =>
+                                setState(() => _selectedRole = UserRole.agent),
                           ),
                         ),
                       ],
@@ -107,7 +116,9 @@ class _RegisterViewState extends State<_RegisterView> {
                       controller: _nameController,
                       label: 'الاسم الكامل',
                       prefixIcon: Icons.person_outline,
-                      validator: (v) => (v == null || v.isEmpty) ? 'الرجاء إدخال الاسم' : null,
+                      validator: (v) => (v == null || v.isEmpty)
+                          ? 'الرجاء إدخال الاسم'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     AuthTextField(
@@ -115,7 +126,9 @@ class _RegisterViewState extends State<_RegisterView> {
                       label: 'البريد الإلكتروني',
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
-                      validator: (v) => (v == null || !v.contains('@')) ? 'بريد إلكتروني غير صحيح' : null,
+                      validator: (v) => (v == null || !v.contains('@'))
+                          ? 'بريد إلكتروني غير صحيح'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     AuthTextField(
@@ -123,7 +136,9 @@ class _RegisterViewState extends State<_RegisterView> {
                       label: 'رقم الهاتف',
                       prefixIcon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
-                      validator: (v) => (v == null || v.length < 9) ? 'رقم هاتف غير صحيح' : null,
+                      validator: (v) => (v == null || v.length < 9)
+                          ? 'رقم هاتف غير صحيح'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     AuthTextField(
@@ -131,17 +146,23 @@ class _RegisterViewState extends State<_RegisterView> {
                       label: 'كلمة المرور',
                       prefixIcon: Icons.lock_outline,
                       obscureText: true,
-                      validator: (v) => (v == null || v.length < 6) ? '6 أحرف على الأقل' : null,
+                      validator: (v) => (v == null || v.length < 6)
+                          ? '6 أحرف على الأقل'
+                          : null,
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
                         Checkbox(
                           value: _agreedToTerms,
-                          onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
+                          onChanged: (v) =>
+                              setState(() => _agreedToTerms = v ?? false),
                         ),
                         const Expanded(
-                          child: Text('أوافق على الشروط والأحكام', style: TextStyle(fontSize: 13)),
+                          child: Text(
+                            'أوافق على الشروط والأحكام',
+                            style: TextStyle(fontSize: 13),
+                          ),
                         ),
                       ],
                     ),
@@ -152,7 +173,10 @@ class _RegisterViewState extends State<_RegisterView> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
                             )
                           : const Text('إنشاء الحساب'),
                     ),
@@ -188,13 +212,21 @@ class _RoleCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary.withOpacity(0.1) : AppColors.surface,
-          border: Border.all(color: selected ? AppColors.primary : AppColors.border, width: 1.5),
+          color: selected
+              ? AppColors.primary.withOpacity(0.1)
+              : AppColors.surface,
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.border,
+            width: 1.5,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           children: [
-            Icon(icon, color: selected ? AppColors.primary : AppColors.textSecondary),
+            Icon(
+              icon,
+              color: selected ? AppColors.primary : AppColors.textSecondary,
+            ),
             const SizedBox(height: 6),
             Text(
               label,

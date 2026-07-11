@@ -1,6 +1,6 @@
 import 'package:akare/core/errors/failures.dart';
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../domain/entities/property_entity.dart';
 import '../../domain/entities/property_type_entity.dart';
@@ -35,23 +35,21 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
       });
 
   /// Centralised try/catch so every call site above stays a one-liner.
-  /// Swap the message strings for your existing Arabic DioException mapper
-  /// (the one built for the admin dashboard's `NEEDS_SUBSCRIPTION` etc.) if
-  /// you'd rather keep error copy in one place.
   Future<Either<Failure, T>> _guard<T>(Future<T> Function() action) async {
     try {
       return Right(await action());
-    } on DioException catch (e) {
-      final message = switch (e.type) {
-        DioExceptionType.connectionTimeout ||
-        DioExceptionType.receiveTimeout ||
-        DioExceptionType.sendTimeout => 'انتهت مهلة الاتصال، حاول مرة أخرى',
-        DioExceptionType.connectionError => 'تحقق من اتصالك بالإنترنت',
-        _ => 'حدث خطأ أثناء تحميل البيانات',
-      };
-      return Left(ServerFailure(message));
+    } on PostgrestException catch (e) {
+      return Left(
+        ServerFailure(
+          e.message.isNotEmpty ? e.message : 'حدث خطأ أثناء تحميل البيانات',
+        ),
+      );
+    } on AuthException catch (e) {
+      return Left(ServerFailure(e.message));
     } catch (_) {
-      return const Left(ServerFailure('حدث خطأ غير متوقع'));
+      return const Left(
+        ServerFailure('تحقق من اتصالك بالإنترنت وحاول مرة أخرى'),
+      );
     }
   }
 }
