@@ -2,6 +2,7 @@ import 'package:akare/core/constants/app_colors.dart';
 import 'package:akare/core/di/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 // exposes `sl` (GetIt.instance) — adjust path/name if yours differs
 import '../cubit/home_cubit.dart';
@@ -141,7 +142,7 @@ class _HeaderSliver extends StatelessWidget {
             const SizedBox(height: 22),
             HomeSearchBar(
               onTap: () {
-                // context.push('/search');
+                context.push('/search');
               },
             ),
           ],
@@ -260,7 +261,7 @@ class _FeaturedSliver extends StatelessWidget {
                           return PropertyCard(
                             property: property,
                             onTap: () {
-                              // context.push('/property/${property.id}');
+                              context.push('/property/${property.id}');
                             },
                             onFavoriteTap: () {
                               // context.read<HomeCubit>().toggleFavorite(property.id);

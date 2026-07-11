@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:akare/features/property_details/presentation/screens/property_details_screen.dart';
+import 'package:akare/features/search/presentation/screens/search_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
@@ -33,7 +35,19 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
     GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+    GoRoute(
+      path: '/search',
+      builder: (context, state) => const SearchScreen(),
+    ),
+    GoRoute(
+      path: '/property/:id',
+      builder: (context, state) => PropertyDetailsScreen(
+        propertyId: state.pathParameters['id']!,
+      ),
+    ),
 
+    // TODO: أضف /agent/* لتطبيق الوكيل و /admin/* للوحة التحكم لاحقًا
     // TODO: أضف /agent/* لتطبيق الوكيل و /admin/* للوحة التحكم لاحقًا
   ],
 );
