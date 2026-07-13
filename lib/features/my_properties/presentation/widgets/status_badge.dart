@@ -23,15 +23,36 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _colors[status] ?? Colors.grey;
+    final label = _labels[status] ?? status;
+
+    final width = MediaQuery.of(context).size.width;
+
+    // نحسب معامل تحجيم بناءً على عرض الشاشة
+    // 360 هو عرض مرجعي لموبايل عادي، ونحدد الحد الأدنى والأقصى حتى لا يصغر/يكبر بشكل مبالغ فيه
+    final scale = (width / 360).clamp(0.85, 1.4);
+
+    final fontSize = (12 * scale).clamp(11.0, 15.0);
+    final horizontalPadding = (10 * scale).clamp(8.0, 16.0);
+    final verticalPadding = (4 * scale).clamp(3.0, 7.0);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding,
+        vertical: verticalPadding,
+      ),
       decoration: BoxDecoration(
         color: color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        _labels[status] ?? status,
-        style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w600,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

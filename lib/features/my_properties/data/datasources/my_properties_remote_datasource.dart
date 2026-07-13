@@ -1,3 +1,5 @@
+import "package:akare/core/network/supabase_client.dart";
+import "package:akare/features/my_properties/data/models/agent_property_detail_model.dart";
 import "package:supabase_flutter/supabase_flutter.dart";
 import "../../domain/entities/my_property_entity.dart";
 import "../models/my_property_model.dart";
@@ -10,11 +12,44 @@ abstract class MyPropertiesRemoteDataSource {
   });
   Future<void> deleteProperty(String propertyId);
   Future<void> updatePropertyStatus(String propertyId, String newStatus);
+  Future<AgentPropertyDetailModel> getPropertyDetail(String propertyId);
 }
 
 class MyPropertiesRemoteDataSourceImpl implements MyPropertiesRemoteDataSource {
   final SupabaseClient client;
   MyPropertiesRemoteDataSourceImpl(this.client);
+  @override
+  @override
+  Future<AgentPropertyDetailModel> getPropertyDetail(String propertyId) async {
+    try {
+      final row = await supabase
+          .from('properties')
+          .select('''
+    id, title, description, price, listing_type, status, rejection_reason,
+    rooms_count, bathrooms_count, area_sqm, views_count, address_text,
+    latitude, longitude,
+    property_types(name_ar), cities(name_ar),
+    property_images(image_url, is_primary, sort_order)
+  ''')
+          .eq('id', propertyId)
+          .single();
+
+      final favRows = await supabase
+          .from('favorites')
+          .select('id')
+          .eq('property_id', propertyId);
+
+      return AgentPropertyDetailModel.fromSupabase(
+        row,
+        favoritesCount: (favRows as List).length,
+      );
+    } catch (e, st) {
+      // ignore: avoid_print
+      print('❌ GET PROPERTY DETAIL ERROR: $e');
+      print('❌ STACK: $st');
+      rethrow;
+    }
+  }
 
   Future<String> get _agentId async {
     final uid = client.auth.currentUser!.id;
@@ -56,7 +91,8 @@ class MyPropertiesRemoteDataSourceImpl implements MyPropertiesRemoteDataSource {
     var query = client
         .from("properties")
         .select(
-            "*, property_images(image_url, is_primary), cities(name_ar), property_types(name_ar)")
+          "*, property_images(image_url, is_primary), cities(name_ar), property_types(name_ar)",
+        )
         .eq("agent_id", agentId);
 
     final statusValue = _statusValue(filter);
@@ -79,10 +115,10 @@ class MyPropertiesRemoteDataSourceImpl implements MyPropertiesRemoteDataSource {
   }
 
   @override
-  Future<void> updatePropertyStatus(
-      String propertyId, String newStatus) async {
+  Future<void> updatePropertyStatus(String propertyId, String newStatus) async {
     await client
         .from("properties")
-        .update({"status": newStatus}).eq("id", propertyId);
+        .update({"status": newStatus})
+        .eq("id", propertyId);
   }
 }

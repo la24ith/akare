@@ -90,10 +90,10 @@ class PropertyFormRemoteDataSourceImpl implements PropertyFormRemoteDataSource {
     required bool isPrimary,
     required int sortOrder,
   }) async {
-    final agentId = await _agentId;
+    final uid = client.auth.currentUser!.id; // ← استخدم uid مباشرة، مش agentId
     final ext = file.path.split(".").last;
     final fileName = "${DateTime.now().microsecondsSinceEpoch}.$ext";
-    final storagePath = "$agentId/$propertyId/$fileName";
+    final storagePath = "$uid/$propertyId/$fileName"; // ← يطابق RLS
 
     await client.storage.from("property-images").upload(storagePath, file);
     final publicUrl = client.storage

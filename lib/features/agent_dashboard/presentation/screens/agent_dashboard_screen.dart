@@ -129,6 +129,13 @@ class _AgentDashboardView extends StatelessWidget {
                                     context.push("/agent/properties/${p.id}"),
                                 child: HeroPropertyPlaceholder(
                                   propertyId: p.id,
+                                  imageUrl: p.mainImageUrl,
+                                  title: p.title,
+                                  price: p.price,
+                                  status: p.listingType,
+                                  subtitle: p.mainImageUrl != null
+                                      ? "${p.roomsCount ?? 0} غرف · ${p.areaSqm.toStringAsFixed(0)} م²"
+                                      : p.cityName,
                                 ),
                               ),
                             );
@@ -146,25 +153,171 @@ class _AgentDashboardView extends StatelessWidget {
   }
 }
 
-/// بديل بسيط لبطاقة PropertyCard الأفقية — استبدله ببطاقتك الفعلية
-/// (PropertyCard) الموجودة مسبقًا مع تمرير بادج الحالة الملوّن.
+/// بطاقة عرض مصغّرة لعقار ضمن قائمة أفقية (مثلاً "أحدث عقاراتي" بالداشبورد).
+///
+/// بديل عن الـ placeholder الفارغ السابق — تعرض فعلياً:
+/// صورة، بادج حالة، سعر، عنوان، وسطر مواصفات مختصر.
+///
+/// ⚠️ عدّل أسماء الحقول بالـ constructor حسب ما هو موجود فعلياً
+/// بـ entity الخاص بـ stats.recentProperties[index] عندك.
 class HeroPropertyPlaceholder extends StatelessWidget {
   final String propertyId;
-  const HeroPropertyPlaceholder({super.key, required this.propertyId});
+  final String? imageUrl;
+  final String title;
+  final double price;
+  final String status; // 'pending' | 'active' | 'rejected' | 'sold' | 'rented'
+  final String? subtitle; // مثلاً: "3 غرف · 120 م²" أو اسم المدينة
+
+  const HeroPropertyPlaceholder({
+    super.key,
+    required this.propertyId,
+    required this.title,
+    required this.price,
+    required this.status,
+    this.imageUrl,
+    this.subtitle,
+  });
+
+  (Color, String) get _statusConfig => switch (status) {
+    'pending' => (const Color(0xFFE7A94C), 'قيد المراجعة'),
+    'active' => (AppColors.primary, 'منشور'),
+    'rejected' => (AppColors.error, 'مرفوض'),
+    'sold' => (const Color(0xFF6B7A76), 'مباع'),
+    'rented' => (const Color(0xFF6B7A76), 'مؤجر'),
+    _ => (AppColors.textSecondary, status),
+  };
 
   @override
   Widget build(BuildContext context) {
+    final (statusColor, statusLabel) = _statusConfig;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
         ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // الصورة + بادج الحالة
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (imageUrl != null && imageUrl!.isNotEmpty)
+                  Image.network(
+                    imageUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _ImageFallback(),
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return Container(
+                        color: const Color(0xFFF0F0F0),
+                        child: const Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                else
+                  _ImageFallback(),
+
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      statusLabel,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // النصوص
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${price.toStringAsFixed(0)} د.أ',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.accent,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                if (subtitle != null && subtitle!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ImageFallback extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFFF0F0F0),
+      child: const Center(
+        child: Icon(
+          Icons.home_work_outlined,
+          size: 32,
+          color: Color(0xFFB0B0B0),
+        ),
       ),
     );
   }

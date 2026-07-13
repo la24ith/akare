@@ -16,7 +16,9 @@ import 'package:akare/features/my_properties/data/repositories/my_properties_rep
 import 'package:akare/features/my_properties/domain/repositories/my_properties_repository.dart';
 import 'package:akare/features/my_properties/domain/usecases/delete_property_usecase.dart';
 import 'package:akare/features/my_properties/domain/usecases/get_my_properties_usecase.dart';
+import 'package:akare/features/my_properties/domain/usecases/get_my_property_detail_usecase.dart';
 import 'package:akare/features/my_properties/domain/usecases/update_property_status_usecase.dart';
+import 'package:akare/features/my_properties/presentation/cubit/agent_property_detail_cubit.dart';
 import 'package:akare/features/my_properties/presentation/cubit/my_properties_cubit.dart';
 import 'package:akare/features/property_form/data/datasources/property_form_remote_datasource.dart';
 import 'package:akare/features/property_form/data/repositories/property_form_repository_impl.dart';
@@ -179,7 +181,14 @@ void registerAgentFeatureDependencies() {
   sl.registerLazySingleton<MyPropertiesRemoteDataSource>(
     () => MyPropertiesRemoteDataSourceImpl(supabase), // كان sl()
   );
-
+  sl.registerLazySingleton(() => GetMyPropertyDetailUseCase(sl()));
+  sl.registerFactory(
+    () => AgentPropertyDetailCubit(
+      getPropertyDetail: sl(),
+      deletePropertyUseCase: sl(),
+      updatePropertyStatusUseCase: sl(),
+    ),
+  );
   // ---------------- Property Form ----------------
   sl.registerFactory(
     () => PropertyFormCubit(

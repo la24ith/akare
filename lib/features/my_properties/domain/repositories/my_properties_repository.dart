@@ -1,4 +1,5 @@
 import "package:akare/core/errors/failures.dart";
+import "package:akare/features/my_properties/domain/entities/agent_property_detail_entity.dart";
 import "package:dartz/dartz.dart";
 
 import "../entities/my_property_entity.dart";
@@ -17,4 +18,7 @@ abstract class MyPropertiesRepository {
     required String propertyId,
     required String newStatus,
   });
+  Future<Either<Failure, AgentPropertyDetailEntity>> getPropertyDetail(
+    String propertyId,
+  );
 }

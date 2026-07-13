@@ -1,5 +1,6 @@
 import 'package:akare/core/errors/failures.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../domain/entities/property_details_entity.dart';
@@ -38,6 +39,10 @@ class PropertyDetailsRepositoryImpl implements PropertyDetailsRepository {
     try {
       return Right(await action());
     } on PostgrestException catch (e) {
+      debugPrint(
+        'POSTGREST ERROR >>> code: ${e.code}, message: ${e.message}, details: ${e.details}',
+      );
+
       return Left(
         ServerFailure(
           e.message.isNotEmpty ? e.message : 'حدث خطأ أثناء تحميل البيانات',

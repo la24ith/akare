@@ -121,8 +121,10 @@ class PropertyFormCubit extends Cubit<PropertyFormState> {
     emit(state.copyWith(images: [...state.images, img]));
   }
 
-  Future<void> uploadPendingImages(String propertyId) async {
+  Future<bool> uploadPendingImages(String propertyId) async {
     final pending = state.images.where((i) => !i.isUploaded).toList();
+    bool allSucceeded = true;
+
     for (final img in pending) {
       if (img.localPath == null) continue;
       emit(state.copyWith(isUploadingImage: true));
@@ -135,9 +137,10 @@ class PropertyFormCubit extends Cubit<PropertyFormState> {
         ),
       );
       result.fold(
-        (f) => emit(
-          state.copyWith(isUploadingImage: false, submitError: f.message),
-        ),
+        (f) {
+          allSucceeded = false;
+          emit(state.copyWith(isUploadingImage: false, submitError: f.message));
+        },
         (url) {
           final updated = state.images.map((e) {
             if (e == img) return e.copyWith(remoteUrl: url);
@@ -147,6 +150,7 @@ class PropertyFormCubit extends Cubit<PropertyFormState> {
         },
       );
     }
+    return allSucceeded;
   }
 
   Future<void> removeImage(PropertyImageEntity image) async {
@@ -236,7 +240,19 @@ class PropertyFormCubit extends Cubit<PropertyFormState> {
       return false;
     }
 
-    await uploadPendingImages(propertyId!);
+    final imagesUploaded = await uploadPendingImages(propertyId!);
+
+    if (!imagesUploaded) {
+      emit(
+        state.copyWith(
+          submitStatus: PropertyFormSubmitStatus.error,
+          submitError: state.submitError ?? "فشل رفع بعض الصور، حاول مرة أخرى",
+          editingPropertyId: propertyId,
+        ),
+      );
+      return false;
+    }
+
     emit(
       state.copyWith(
         submitStatus: PropertyFormSubmitStatus.success,
@@ -244,5 +260,9 @@ class PropertyFormCubit extends Cubit<PropertyFormState> {
       ),
     );
     return true;
+  }
+
+  void setLocation(double lat, double lng) {
+    emit(state.copyWith(latitude: lat, longitude: lng));
   }
 }

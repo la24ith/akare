@@ -1,9 +1,11 @@
 import "package:akare/core/constants/app_colors.dart";
 import "package:akare/core/di/injection_container.dart";
+import "package:akare/features/property_form/presentation/widgets/location_picker_screen.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:go_router/go_router.dart";
 import "package:image_picker/image_picker.dart";
+import "package:latlong2/latlong.dart";
 import "../cubit/property_form_cubit.dart";
 import "../widgets/form_section_card.dart";
 import "../widgets/property_images_grid.dart";
@@ -286,6 +288,33 @@ class _PropertyFormViewState extends State<_PropertyFormView> {
                           onAdd: () => _pickImage(context),
                           onRemove: cubit.removeImage,
                           onSetPrimary: cubit.setPrimaryImage,
+                        ),
+
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            final result = await Navigator.of(context)
+                                .push<LatLng>(
+                                  MaterialPageRoute(
+                                    builder: (_) => LocationPickerScreen(
+                                      initialLat: state.latitude,
+                                      initialLng: state.longitude,
+                                    ),
+                                  ),
+                                );
+                            if (result != null) {
+                              cubit.setLocation(
+                                result.latitude,
+                                result.longitude,
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.map_outlined),
+                          label: Text(
+                            state.latitude != null
+                                ? 'تم التحديد (${state.latitude!.toStringAsFixed(4)}, ${state.longitude!.toStringAsFixed(4)})'
+                                : 'تحديد الموقع على الخريطة',
+                          ),
                         ),
                       ],
                     ),

@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:akare/features/agent_dashboard/presentation/screens/agent_dashboard_screen.dart';
 import 'package:akare/features/agent_profile/presentation/screens/agent_profile_screen.dart';
 import 'package:akare/features/auth/domain/usecases/user_session.dart';
+import 'package:akare/features/my_properties/presentation/screens/agent_property_detail_screen.dart';
 import 'package:akare/features/my_properties/presentation/screens/my_properties_screen.dart';
-import 'package:akare/features/property_details/presentation/screens/property_details_screen.dart';
+import 'package:akare/features/property_details/presentation/screens/property_details_screen.dart'
+    hide PropertyDetailsScreen;
 import 'package:akare/features/property_form/presentation/screens/property_form_screen.dart';
 import 'package:akare/features/search/presentation/screens/search_screen.dart';
 import 'package:flutter/foundation.dart';
@@ -83,18 +85,16 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) =>
           PropertyFormScreen(propertyId: state.pathParameters["id"]),
     ),
-    GoRoute(
-      // تفاصيل عقار الوكيل — شاشة "My Property Detail" (القسم 3.4 بالمستند)
-      // لم تُبنَ ضمن هذه الدفعة؛ اربطها بشاشتك الفعلية عند بنائها.
-      path: "/agent/properties/:id",
-      builder: (context, state) => Scaffold(
-        appBar: AppBar(title: const Text("تفاصيل العقار")),
-        body: Center(child: Text("Property ID: ${state.pathParameters["id"]}")),
-      ),
-    ),
+
     GoRoute(
       path: "/agent/profile",
       builder: (context, state) => const AgentProfileScreen(),
+    ),
+
+    GoRoute(
+      path: "/agent/properties/:id",
+      builder: (context, state) =>
+          PropertyDetailsScreen(propertyId: state.pathParameters["id"]!),
     ),
   ],
 );
