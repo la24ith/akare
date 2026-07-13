@@ -1,5 +1,7 @@
 import 'dart:ui';
 import 'package:akare/core/di/injection_container.dart';
+import 'package:akare/features/property_details/domain/entities/agent_entity.dart';
+import 'package:akare/features/property_details/domain/entities/property_details_entity.dart';
 import 'package:akare/features/property_details/presentation/cubit/property_details_cubit.dart';
 import 'package:akare/features/property_details/presentation/cubit/property_details_state.dart';
 import 'package:akare/features/property_details/presentation/widgets/report_bottom_sheet.dart';
@@ -381,7 +383,7 @@ class _GlassIconButton extends StatelessWidget {
 /// PRICE HEADER — price, status badge, title, location, views
 /// =======================================================================
 class _PriceHeader extends StatelessWidget {
-  final dynamic property;
+  final PropertyDetailsEntity property;
   const _PriceHeader({required this.property});
 
   @override
@@ -416,7 +418,7 @@ class _PriceHeader extends StatelessWidget {
                         ],
                       ).createShader(rect),
                       child: Text(
-                        '${property.price.toStringAsFixed(0)} د.أ',
+                        '${property.price.toStringAsFixed(0)} \$ ',
                         style: const TextStyle(
                           fontFamily: _fontFamily,
                           fontSize: 26,
@@ -821,8 +823,9 @@ class _MapGridPainter extends CustomPainter {
 /// =======================================================================
 /// AGENT PROFILE CARD — avatar, rating, response time, verified badge
 /// =======================================================================
+
 class _AgentProfileCard extends StatelessWidget {
-  final dynamic agent;
+  final AgentEntity agent; // كان dynamic
   const _AgentProfileCard({required this.agent});
 
   @override
@@ -853,8 +856,8 @@ class _AgentProfileCard extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.all(2),
                 child: ClipOval(
-                  child: agent?.avatarUrl != null
-                      ? Image.network(agent.avatarUrl, fit: BoxFit.cover)
+                  child: agent.avatarUrl != null
+                      ? Image.network(agent.avatarUrl!, fit: BoxFit.cover)
                       : Container(
                           color: Colors.white,
                           child: const Icon(
@@ -864,29 +867,30 @@ class _AgentProfileCard extends StatelessWidget {
                         ),
                 ),
               ),
-              Positioned(
-                bottom: -2,
-                right: -2,
-                child: Container(
-                  padding: const EdgeInsets.all(3),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
+              if (agent.isVerifiedAgent)
+                Positioned(
+                  bottom: -2,
+                  right: -2,
                   child: Container(
-                    padding: const EdgeInsets.all(2),
+                    padding: const EdgeInsets.all(3),
                     decoration: const BoxDecoration(
-                      color: _Palette.royalBlue,
+                      color: Colors.white,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.check_rounded,
-                      size: 10,
-                      color: Colors.white,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(
+                        color: _Palette.royalBlue,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        size: 10,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
           const SizedBox(width: 14),
@@ -895,7 +899,7 @@ class _AgentProfileCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  agent.name ?? 'الوكيل العقاري',
+                  agent.fullName, // كان agent.name
                   style: const TextStyle(
                     fontFamily: _fontFamily,
                     fontSize: 14.5,
@@ -904,35 +908,14 @@ class _AgentProfileCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(Icons.star_rounded, size: 15, color: _Palette.gold),
-                    const SizedBox(width: 2),
-                    Text(
-                      '${agent?.rating ?? "4.9"}',
-                      style: const TextStyle(
-                        fontFamily: _fontFamily,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: _Palette.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Icon(
-                      Icons.bolt_rounded,
-                      size: 14,
-                      color: _Palette.textSecondary,
-                    ),
-                    const SizedBox(width: 2),
-                    Text(
-                      'يرد خلال ${agent?.responseTime ?? "ساعة"}',
-                      style: const TextStyle(
-                        fontFamily: _fontFamily,
-                        fontSize: 11.5,
-                        color: _Palette.textSecondary,
-                      ),
-                    ),
-                  ],
+                Text(
+                  agent.companyName ??
+                      'وكيل عقاري', // بدل rating/responseTime غير الموجودين
+                  style: const TextStyle(
+                    fontFamily: _fontFamily,
+                    fontSize: 12,
+                    color: _Palette.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -943,7 +926,7 @@ class _AgentProfileCard extends StatelessWidget {
               color: _Palette.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.chat_bubble_rounded,
               size: 18,
               color: _Palette.primary,
