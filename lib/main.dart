@@ -26,7 +26,7 @@ class RealEstateApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'منصة عقارية',
+      title: ' عقاري',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
 
