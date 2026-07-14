@@ -20,6 +20,12 @@ import 'package:akare/features/my_properties/domain/usecases/get_my_property_det
 import 'package:akare/features/my_properties/domain/usecases/update_property_status_usecase.dart';
 import 'package:akare/features/my_properties/presentation/cubit/agent_property_detail_cubit.dart';
 import 'package:akare/features/my_properties/presentation/cubit/my_properties_cubit.dart';
+import 'package:akare/features/notifications/data/datasources/notifications_remote_datasource.dart';
+import 'package:akare/features/notifications/data/repositories/notifications_repository_impl.dart';
+import 'package:akare/features/notifications/domain/repositories/notifications_repository.dart';
+import 'package:akare/features/notifications/domain/usecases/mark_notification_read_usecase.dart';
+import 'package:akare/features/notifications/domain/usecases/watch_notifications_usecase.dart';
+import 'package:akare/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:akare/features/property_form/data/datasources/property_form_remote_datasource.dart';
 import 'package:akare/features/property_form/data/repositories/property_form_repository_impl.dart';
 import 'package:akare/features/property_form/domain/repositories/property_form_repository.dart';
@@ -230,5 +236,23 @@ void registerAgentFeatureDependencies() {
   );
   sl.registerLazySingleton<AgentProfileRemoteDataSource>(
     () => AgentProfileRemoteDataSourceImpl(supabase), // كان sl()
+  );
+  // ---------------- Notifications ----------------
+  sl.registerLazySingleton<NotificationsRemoteDataSource>(
+    () => NotificationsRemoteDataSourceImpl(supabase),
+  );
+  sl.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => WatchNotificationsUseCase(sl()));
+  sl.registerLazySingleton(() => MarkNotificationAsReadUseCase(sl()));
+  sl.registerLazySingleton(() => MarkAllNotificationsAsReadUseCase(sl()));
+  sl.registerLazySingleton(
+    // ⚠️ lazySingleton مش factory — راجع الملاحظة بالكود فوق
+    () => NotificationsCubit(
+      watchNotifications: sl(),
+      markAsReadUseCase: sl(),
+      markAllAsReadUseCase: sl(),
+    ),
   );
 }

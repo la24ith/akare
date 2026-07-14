@@ -8,6 +8,9 @@ import 'package:akare/features/property_details/presentation/widgets/report_bott
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart' as ll;
+import 'package:url_launcher/url_launcher.dart';
 
 /// ---------------------------------------------------------------------
 /// PREMIUM PALETTE
@@ -159,8 +162,8 @@ class _PropertyDetailsViewState extends State<_PropertyDetailsView> {
                             _MiniMapCard(
                               addressText:
                                   property.addressText ?? 'العنوان غير متوفر',
-                              latitude: property.latitude ?? 0.0,
-                              longitude: property.longitude ?? 0.0,
+                              latitude: property.latitude,
+                              longitude: property.longitude,
                             ),
                             const SizedBox(height: 28),
                             const _SectionTitle(
@@ -693,57 +696,117 @@ class _ExpandableDescriptionState extends State<_ExpandableDescription> {
 /// Swap the placeholder pattern for a real google_maps_flutter / static
 /// maps image if you have an API key wired up.
 /// =======================================================================
+/// =======================================================================
+/// MINI MAP CARD — real flutter_map preview + fullscreen expand + directions
+/// =======================================================================
+const _tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const _userAgent = 'com.example.akare'; // بدّله لـ applicationId الفعلي عندك
+
 class _MiniMapCard extends StatelessWidget {
   final String addressText;
-  final double latitude;
-  final double longitude;
+  final double? latitude;
+  final double? longitude;
   const _MiniMapCard({
     required this.addressText,
     required this.latitude,
     required this.longitude,
   });
 
+  bool get _hasLocation => latitude != null && longitude != null;
+
   @override
   Widget build(BuildContext context) {
+    if (!_hasLocation) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: _Palette.surface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.location_off_rounded,
+              size: 20,
+              color: _Palette.textSecondary,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                addressText,
+                style: const TextStyle(
+                  fontFamily: _fontFamily,
+                  fontSize: 12.5,
+                  color: _Palette.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final point = ll.LatLng(latitude!, longitude!);
+
     return Container(
       decoration: BoxDecoration(
         color: _Palette.surface,
         borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 130,
-            width: double.infinity,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                CustomPaint(
-                  size: const Size(double.infinity, 130),
-                  painter: _MapGridPainter(),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: _Palette.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: _Palette.primary.withOpacity(0.4),
-                        blurRadius: 14,
-                        offset: const Offset(0, 6),
+          GestureDetector(
+            onTap: () => _openFullscreen(context, point),
+            child: SizedBox(
+              height: 140,
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  AbsorbPointer(
+                    child: FlutterMap(
+                      options: MapOptions(
+                        initialCenter: point,
+                        initialZoom: 15,
+                        interactionOptions: const InteractionOptions(
+                          flags: InteractiveFlag.none,
+                        ),
                       ),
-                    ],
+                      children: [
+                        TileLayer(
+                          urlTemplate: _tileUrl,
+                          userAgentPackageName: _userAgent,
+                        ),
+                        MarkerLayer(markers: [_pin(point)]),
+                      ],
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.location_on_rounded,
-                    color: Colors.white,
-                    size: 22,
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.fullscreen_rounded,
+                        size: 16,
+                        color: _Palette.primary,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Padding(
@@ -762,34 +825,37 @@ class _MiniMapCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _Palette.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.directions_rounded,
-                        size: 14,
-                        color: _Palette.primary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'الاتجاهات',
-                        style: TextStyle(
-                          fontFamily: _fontFamily,
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
+                GestureDetector(
+                  onTap: () => _openDirections(point),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _Palette.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.directions_rounded,
+                          size: 14,
                           color: _Palette.primary,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 4),
+                        Text(
+                          'الاتجاهات',
+                          style: TextStyle(
+                            fontFamily: _fontFamily,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                            color: _Palette.primary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -799,25 +865,185 @@ class _MiniMapCard extends StatelessWidget {
       ),
     );
   }
+
+  Marker _pin(ll.LatLng point) {
+    return Marker(
+      point: point,
+      width: 48,
+      height: 60,
+      alignment: Alignment.topCenter,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              color: _Palette.primary,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 3),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.home_rounded,
+              color: Colors.white,
+              size: 16,
+            ),
+          ),
+          CustomPaint(
+            size: const Size(10, 8),
+            painter: _PinTailPainter(_Palette.primary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openDirections(ll.LatLng point) async {
+    final uri = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}',
+    );
+    if (await canLaunchUrl(uri))
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  void _openFullscreen(BuildContext context, ll.LatLng point) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            _FullscreenMapScreen(point: point, addressText: addressText),
+      ),
+    );
+  }
 }
 
-class _MapGridPainter extends CustomPainter {
+class _PinTailPainter extends CustomPainter {
+  final Color color;
+  _PinTailPainter(this.color);
+
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = _Palette.divider
-      ..strokeWidth = 1;
-    const step = 22.0;
-    for (double x = 0; x < size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (double y = 0; y < size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
+    final paint = Paint()..color = color;
+    final path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width / 2, size.height)
+      ..close();
+    canvas.drawPath(path, paint);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _FullscreenMapScreen extends StatelessWidget {
+  final ll.LatLng point;
+  final String addressText;
+  const _FullscreenMapScreen({required this.point, required this.addressText});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: _Palette.bg,
+        foregroundColor: _Palette.textPrimary,
+        elevation: 0,
+        title: Text(
+          addressText,
+          style: const TextStyle(fontFamily: _fontFamily, fontSize: 14),
+        ),
+      ),
+      body: Stack(
+        children: [
+          FlutterMap(
+            options: MapOptions(initialCenter: point, initialZoom: 16),
+            children: [
+              TileLayer(
+                urlTemplate: _tileUrl,
+                userAgentPackageName: _userAgent,
+              ),
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: point,
+                    width: 52,
+                    height: 64,
+                    alignment: Alignment.topCenter,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(11),
+                          decoration: BoxDecoration(
+                            color: _Palette.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 10,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.home_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                        CustomPaint(
+                          size: const Size(11, 9),
+                          painter: _PinTailPainter(_Palette.primary),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 20,
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final uri = Uri.parse(
+                    'https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}',
+                  );
+                  if (await canLaunchUrl(uri))
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _Palette.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                icon: const Icon(Icons.directions_rounded),
+                label: const Text(
+                  'فتح الاتجاهات بتطبيق الخرائط',
+                  style: TextStyle(
+                    fontFamily: _fontFamily,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// =======================================================================

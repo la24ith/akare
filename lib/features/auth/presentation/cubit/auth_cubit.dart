@@ -1,3 +1,4 @@
+import 'package:akare/core/notifications/push_notification_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/user_entity.dart';
@@ -26,10 +27,10 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> login({required String email, required String password}) async {
     emit(const AuthLoading());
     final result = await loginUseCase(email: email, password: password);
-    result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (user) => emit(AuthSuccess(user)),
-    );
+    result.fold((failure) => emit(AuthError(failure.message)), (user) async {
+      await PushNotificationService.onUserLoggedIn();
+      emit(AuthSuccess(user));
+    });
   }
 
   Future<void> register({
@@ -65,10 +66,11 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> logout() async {
     emit(const AuthLoading());
     final result = await logoutUseCase();
-    result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (_) => emit(const AuthLoggedOut()),
-    );
+    result.fold((failure) => emit(AuthError(failure.message)), (_) async {
+      await PushNotificationService.onUserLoggedOut(); // قبل/بعد Logout مباشرة
+
+      emit(const AuthLoggedOut());
+    });
   }
 
   Future<void> checkCurrentUser() async {
@@ -76,7 +78,8 @@ class AuthCubit extends Cubit<AuthState> {
     final result = await getCurrentUserUseCase();
     result.fold(
       (failure) => emit(AuthError(failure.message)),
-      (user) => user != null ? emit(AuthSuccess(user)) : emit(const AuthInitial()),
+      (user) =>
+          user != null ? emit(AuthSuccess(user)) : emit(const AuthInitial()),
     );
   }
 }

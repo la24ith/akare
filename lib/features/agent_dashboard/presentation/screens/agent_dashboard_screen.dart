@@ -1,6 +1,7 @@
 import "package:akare/core/constants/app_colors.dart";
 import "package:akare/core/di/injection_container.dart";
 import "package:akare/features/home/presentation/widgets/home_section_states.dart";
+import "package:akare/features/notifications/presentation/widgets/notification_bell.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:go_router/go_router.dart";
@@ -27,6 +28,7 @@ class _AgentDashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(actions: const [NotificationBell(), SizedBox(width: 8)]),
       backgroundColor: const Color(0xFFF7F8F8),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primary,

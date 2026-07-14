@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:akare/features/agent_dashboard/presentation/screens/agent_dashboard_screen.dart';
+import 'package:akare/features/agent_dashboard/presentation/widgets/agent_scaffold.dart';
 import 'package:akare/features/agent_profile/presentation/screens/agent_profile_screen.dart';
 import 'package:akare/features/auth/domain/usecases/user_session.dart';
 import 'package:akare/features/my_properties/presentation/screens/agent_property_detail_screen.dart';
 import 'package:akare/features/my_properties/presentation/screens/my_properties_screen.dart';
+import 'package:akare/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:akare/features/property_details/presentation/screens/property_details_screen.dart'
     hide PropertyDetailsScreen;
 import 'package:akare/features/property_form/presentation/screens/property_form_screen.dart';
@@ -69,12 +71,8 @@ final GoRouter appRouter = GoRouter(
           PropertyDetailsScreen(propertyId: state.pathParameters['id']!),
     ),
     GoRoute(
-      path: "/agent/dashboard",
-      builder: (context, state) => const AgentDashboardScreen(),
-    ),
-    GoRoute(
-      path: "/agent/properties",
-      builder: (context, state) => const MyPropertiesScreen(),
+      path: '/agent/notifications',
+      builder: (context, state) => const NotificationsScreen(),
     ),
     GoRoute(
       path: "/agent/properties/add",
@@ -85,10 +83,35 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) =>
           PropertyFormScreen(propertyId: state.pathParameters["id"]),
     ),
-
-    GoRoute(
-      path: "/agent/profile",
-      builder: (context, state) => const AgentProfileScreen(),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) =>
+          AgentScaffold(navigationShell: navigationShell),
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/agent/dashboard',
+              builder: (context, state) => const AgentDashboardScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/agent/properties',
+              builder: (context, state) => const MyPropertiesScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/agent/profile',
+              builder: (context, state) => const AgentProfileScreen(),
+            ),
+          ],
+        ),
+      ],
     ),
 
     GoRoute(

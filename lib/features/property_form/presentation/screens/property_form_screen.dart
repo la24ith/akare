@@ -9,6 +9,7 @@ import "package:latlong2/latlong.dart";
 import "../cubit/property_form_cubit.dart";
 import "../widgets/form_section_card.dart";
 import "../widgets/property_images_grid.dart";
+import 'package:latlong2/latlong.dart' as ll;
 
 class PropertyFormScreen extends StatelessWidget {
   final String? propertyId; // null = إضافة، غير null = تعديل
@@ -228,41 +229,6 @@ class _PropertyFormViewState extends State<_PropertyFormView> {
                             ],
                           ),
                         ],
-                      ],
-                    ),
-                  ),
-                  FormSectionCard(
-                    title: "الموقع",
-                    child: Column(
-                      children: [
-                        DropdownButtonFormField<int>(
-                          value: state.cityId,
-                          decoration: InputDecoration(
-                            labelText: "المدينة",
-                            errorText: state.fieldErrors["city"],
-                            border: const OutlineInputBorder(),
-                          ),
-                          items: state.cities
-                              .map(
-                                (c) => DropdownMenuItem(
-                                  value: c.id,
-                                  child: Text(c.nameAr),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (v) {
-                            if (v != null) cubit.setCity(v);
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        TextField(
-                          controller: _addressController,
-                          onChanged: cubit.setAddress,
-                          decoration: const InputDecoration(
-                            labelText: "العنوان النصي (اختياري)",
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
                       ],
                     ),
                   ),

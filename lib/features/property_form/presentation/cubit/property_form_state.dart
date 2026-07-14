@@ -1,6 +1,7 @@
 part of "property_form_cubit.dart";
 
 enum PropertyFormLoadStatus { loading, ready, error }
+
 enum PropertyFormSubmitStatus { idle, submitting, success, error }
 
 class PropertyFormState extends Equatable {
@@ -118,28 +119,28 @@ class PropertyFormState extends Equatable {
 
   @override
   List<Object?> get props => [
-        loadStatus,
-        submitStatus,
-        loadError,
-        submitError,
-        propertyTypes,
-        cities,
-        isEditing,
-        editingPropertyId,
-        title,
-        description,
-        propertyTypeId,
-        listingType,
-        price,
-        areaSqm,
-        roomsCount,
-        bathroomsCount,
-        cityId,
-        addressText,
-        latitude,
-        longitude,
-        images,
-        isUploadingImage,
-        fieldErrors,
-      ];
+    loadStatus,
+    submitStatus,
+    loadError,
+    submitError,
+    propertyTypes,
+    cities,
+    isEditing,
+    editingPropertyId,
+    title,
+    description,
+    propertyTypeId,
+    listingType,
+    price,
+    areaSqm,
+    roomsCount,
+    bathroomsCount,
+    cityId,
+    addressText,
+    latitude,
+    longitude,
+    images,
+    isUploadingImage,
+    fieldErrors,
+  ];
 }
