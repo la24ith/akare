@@ -1,3 +1,4 @@
+import 'package:akare/features/property_details/presentation/widgets/property_qr_sheet.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +10,8 @@ class PropertyImageGallery extends StatefulWidget {
   final VoidCallback onBack;
   final VoidCallback onFavoriteTap;
   final VoidCallback onShareTap;
+  final String propertyId;
+  final String propertyTitle;
 
   const PropertyImageGallery({
     super.key,
@@ -17,6 +20,8 @@ class PropertyImageGallery extends StatefulWidget {
     required this.onBack,
     required this.onFavoriteTap,
     required this.onShareTap,
+    required this.propertyId,
+    required this.propertyTitle,
   });
 
   @override
@@ -113,6 +118,15 @@ class _PropertyImageGalleryState extends State<PropertyImageGallery> {
                       ? AppColors.error
                       : AppColors.textPrimary,
                   onTap: widget.onFavoriteTap,
+                ),
+                _CircleIconButton(
+                  // أو _CircleIconButton حسب أي نسخة عندك من الشاشة
+                  icon: Icons.qr_code_rounded,
+                  onTap: () => showPropertyQrSheet(
+                    context: context,
+                    propertyId: widget.propertyId,
+                    propertyTitle: widget.propertyTitle,
+                  ),
                 ),
               ],
             ),

@@ -93,6 +93,8 @@ class _PropertyDetailsView extends StatelessWidget {
                                   '${property.title} — ${property.price.toStringAsFixed(0)} د.أ',
                             ),
                           ),
+                          propertyId: property.id,
+                          propertyTitle: property.title,
                         ),
                         // soft fade so the rounded content sheet blends
                         // smoothly into the gallery below it.
