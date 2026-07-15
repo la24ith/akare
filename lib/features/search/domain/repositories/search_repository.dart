@@ -1,4 +1,4 @@
-import 'package:akare/core/errors/failures.dart';
+import 'package:akare/core/error/failures.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../../home/domain/entities/property_entity.dart';

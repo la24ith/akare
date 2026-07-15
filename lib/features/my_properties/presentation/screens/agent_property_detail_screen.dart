@@ -37,9 +37,9 @@ class _Palette {
 const _fontFamily = 'SF Pro Display'; // falls back to Inter/system if absent
 
 /// Public entry point.
-class PropertyDetailsScreen extends StatelessWidget {
+class AgentPropertyDetailsScreen extends StatelessWidget {
   final String propertyId;
-  const PropertyDetailsScreen({super.key, required this.propertyId});
+  const AgentPropertyDetailsScreen({super.key, required this.propertyId});
 
   @override
   Widget build(BuildContext context) {

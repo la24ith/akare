@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:akare/core/constants/app_colors.dart';
 import 'package:akare/core/di/injection_container.dart';
+import 'package:akare/features/comparison/presentation/cubit/compare_selection_cubit.dart';
+import 'package:akare/features/comparison/presentation/widgets/compare_floating_bar.dart';
+import 'package:akare/features/comparison/presentation/widgets/compare_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,8 +25,11 @@ class SearchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<SearchCubit>()..init(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => sl<SearchCubit>()..init()),
+        BlocProvider.value(value: sl<CompareSelectionCubit>()), // ← جديد
+      ],
       child: const _SearchView(),
     );
   }
@@ -86,78 +92,20 @@ class _SearchViewState extends State<_SearchView> {
           ),
         ),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 48,
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.search,
-                          color: AppColors.textSecondary,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: _keywordController,
-                            onChanged: _onKeywordChanged,
-                            textInputAction: TextInputAction.search,
-                            decoration: const InputDecoration(
-                              hintText: 'ابحث عن شقة، فيلا، أرض ...',
-                              hintStyle: TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 13.5,
-                              ),
-                              border: InputBorder.none,
-                              isDense: true,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                BlocBuilder<SearchCubit, SearchState>(
-                  buildWhen: (p, c) =>
-                      p.filter != c.filter ||
-                      p.cities != c.cities ||
-                      p.propertyTypes != c.propertyTypes,
-                  builder: (context, state) {
-                    return GestureDetector(
-                      onTap: () => showFilterSheet(
-                        context: context,
-                        currentFilter: state.filter,
-                        cities: state.cities,
-                        propertyTypes: state.propertyTypes,
-                        onApply: (filter) =>
-                            context.read<SearchCubit>().applyFilter(filter),
-                        onClear: () =>
-                            context.read<SearchCubit>().clearFilters(),
-                      ),
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+                child: Row(
+                  children: [
+                    Expanded(
                       child: Container(
-                        padding: const EdgeInsets.all(13),
+                        height: 48,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         decoration: BoxDecoration(
-                          color: state.filter.hasActiveFilters
-                              ? AppColors.primary
-                              : AppColors.surface,
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
@@ -166,89 +114,157 @@ class _SearchViewState extends State<_SearchView> {
                             ),
                           ],
                         ),
-                        child: Icon(
-                          Icons.tune_rounded,
-                          size: 20,
-                          color: state.filter.hasActiveFilters
-                              ? Colors.white
-                              : AppColors.primary,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.search,
+                              color: AppColors.textSecondary,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                controller: _keywordController,
+                                onChanged: _onKeywordChanged,
+                                textInputAction: TextInputAction.search,
+                                decoration: const InputDecoration(
+                                  hintText: 'ابحث عن شقة، فيلا، أرض ...',
+                                  hintStyle: TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 13.5,
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    );
+                    ),
+                    const SizedBox(width: 10),
+                    BlocBuilder<SearchCubit, SearchState>(
+                      buildWhen: (p, c) =>
+                          p.filter != c.filter ||
+                          p.cities != c.cities ||
+                          p.propertyTypes != c.propertyTypes,
+                      builder: (context, state) {
+                        return GestureDetector(
+                          onTap: () => showFilterSheet(
+                            context: context,
+                            currentFilter: state.filter,
+                            cities: state.cities,
+                            propertyTypes: state.propertyTypes,
+                            onApply: (filter) =>
+                                context.read<SearchCubit>().applyFilter(filter),
+                            onClear: () =>
+                                context.read<SearchCubit>().clearFilters(),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(13),
+                            decoration: BoxDecoration(
+                              color: state.filter.hasActiveFilters
+                                  ? AppColors.primary
+                                  : AppColors.surface,
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.tune_rounded,
+                              size: 20,
+                              color: state.filter.hasActiveFilters
+                                  ? Colors.white
+                                  : AppColors.primary,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    BlocBuilder<SearchCubit, SearchState>(
+                      buildWhen: (p, c) =>
+                          p.results.length != c.results.length ||
+                          p.resultsStatus != c.resultsStatus,
+                      builder: (context, state) => Text(
+                        state.resultsStatus == ResultsStatus.loaded
+                            ? '${state.results.length} نتيجة'
+                            : ' ',
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                    BlocBuilder<SearchCubit, SearchState>(
+                      buildWhen: (p, c) => p.viewMode != c.viewMode,
+                      builder: (context, state) => ViewModeToggle(
+                        mode: state.viewMode,
+                        onChanged: (mode) =>
+                            context.read<SearchCubit>().setViewMode(mode),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: BlocBuilder<SearchCubit, SearchState>(
+                  builder: (context, state) {
+                    if (state.resultsStatus == ResultsStatus.loading ||
+                        state.resultsStatus == ResultsStatus.initial) {
+                      return state.viewMode == ViewMode.grid
+                          ? const _GridShimmer()
+                          : ListView.builder(
+                              itemCount: 5,
+                              itemBuilder: (_, __) =>
+                                  const PropertyListTileShimmer(),
+                            );
+                    }
+
+                    if (state.resultsStatus == ResultsStatus.error) {
+                      return SectionError(
+                        message: state.errorMessage ?? 'حدث خطأ أثناء البحث',
+                        onRetry: () => context.read<SearchCubit>().search(),
+                      );
+                    }
+
+                    if (state.isEmpty) {
+                      return const EmptyProperties(
+                        message: ' لا توجد عقارات مطابقة لبحثك',
+                      );
+                    }
+
+                    return state.viewMode == ViewMode.grid
+                        ? _ResultsGrid(
+                            scrollController: _scrollController,
+                            state: state,
+                          )
+                        : _ResultsList(
+                            scrollController: _scrollController,
+                            state: state,
+                          );
                   },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                BlocBuilder<SearchCubit, SearchState>(
-                  buildWhen: (p, c) =>
-                      p.results.length != c.results.length ||
-                      p.resultsStatus != c.resultsStatus,
-                  builder: (context, state) => Text(
-                    state.resultsStatus == ResultsStatus.loaded
-                        ? '${state.results.length} نتيجة'
-                        : ' ',
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ),
-                BlocBuilder<SearchCubit, SearchState>(
-                  buildWhen: (p, c) => p.viewMode != c.viewMode,
-                  builder: (context, state) => ViewModeToggle(
-                    mode: state.viewMode,
-                    onChanged: (mode) =>
-                        context.read<SearchCubit>().setViewMode(mode),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: BlocBuilder<SearchCubit, SearchState>(
-              builder: (context, state) {
-                if (state.resultsStatus == ResultsStatus.loading ||
-                    state.resultsStatus == ResultsStatus.initial) {
-                  return state.viewMode == ViewMode.grid
-                      ? const _GridShimmer()
-                      : ListView.builder(
-                          itemCount: 5,
-                          itemBuilder: (_, __) =>
-                              const PropertyListTileShimmer(),
-                        );
-                }
-
-                if (state.resultsStatus == ResultsStatus.error) {
-                  return SectionError(
-                    message: state.errorMessage ?? 'حدث خطأ أثناء البحث',
-                    onRetry: () => context.read<SearchCubit>().search(),
-                  );
-                }
-
-                if (state.isEmpty) {
-                  return const EmptyProperties(
-                    message: ' لا توجد عقارات مطابقة لبحثك',
-                  );
-                }
-
-                return state.viewMode == ViewMode.grid
-                    ? _ResultsGrid(
-                        scrollController: _scrollController,
-                        state: state,
-                      )
-                    : _ResultsList(
-                        scrollController: _scrollController,
-                        state: state,
-                      );
-              },
-            ),
+          const Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: CompareFloatingBar(),
           ),
         ],
       ),
@@ -271,11 +287,20 @@ class _ResultsList extends StatelessWidget {
         if (index >= state.results.length)
           return const PropertyListTileShimmer();
         final property = state.results[index];
-        return PropertyListTile(
-          property: property,
-          onTap: () {
-            // context.push('/property/${property.id}');
-          },
+        return Stack(
+          children: [
+            PropertyListTile(
+              property: property,
+              onTap: () {
+                // context.push('/property/${property.id}');
+              },
+            ),
+            Positioned(
+              top: 14,
+              left: 30,
+              child: CompareToggleButton(property: property),
+            ),
+          ],
         );
       },
     );
@@ -301,11 +326,20 @@ class _ResultsGrid extends StatelessWidget {
       itemCount: state.results.length,
       itemBuilder: (context, index) {
         final property = state.results[index];
-        return PropertyGridTile(
-          property: property,
-          onTap: () {
-            // context.push('/property/${property.id}');
-          },
+        return Stack(
+          children: [
+            PropertyGridTile(
+              property: property,
+              onTap: () {
+                // context.push('/property/${property.id}');
+              },
+            ),
+            Positioned(
+              top: 14,
+              left: 30,
+              child: CompareToggleButton(property: property),
+            ),
+          ],
         );
       },
     );

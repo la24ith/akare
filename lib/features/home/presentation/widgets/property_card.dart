@@ -30,12 +30,14 @@ class ListingBadge extends StatelessWidget {
 
 class _PropertyImage extends StatelessWidget {
   final String? url;
+  final double? width;
   final double height;
   final BorderRadius borderRadius;
   const _PropertyImage({
     required this.url,
     required this.height,
     required this.borderRadius,
+    this.width,
   });
 
   @override
@@ -44,6 +46,7 @@ class _PropertyImage extends StatelessWidget {
       borderRadius: borderRadius,
       child: url == null
           ? Container(
+              width: width,
               height: height,
               color: AppColors.divider,
               child: const Icon(
@@ -54,11 +57,16 @@ class _PropertyImage extends StatelessWidget {
             )
           : CachedNetworkImage(
               imageUrl: url!,
+              width: width,
               height: height,
               fit: BoxFit.cover,
-              placeholder: (_, __) =>
-                  Container(height: height, color: AppColors.divider),
+              placeholder: (_, __) => Container(
+                width: width,
+                height: height,
+                color: AppColors.divider,
+              ),
               errorWidget: (_, __, ___) => Container(
+                width: width,
                 height: height,
                 color: AppColors.divider,
                 child: const Icon(
@@ -88,95 +96,99 @@ class PropertyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: 220,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                _PropertyImage(
-                  url: property.mainImageUrl,
-                  height: 140,
-                  borderRadius: BorderRadius.zero,
-                ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: ListingBadge(isForSale: property.isForSale),
-                ),
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: _FavoriteButton(
-                    isFavorite: property.isFavorite,
-                    onTap: onFavoriteTap,
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 3.0),
+        child: Container(
+          width: 220,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
                 children: [
-                  Text(
-                    '${property.price.toStringAsFixed(0)} د.أ',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.accent,
-                    ),
+                  _PropertyImage(
+                    width: 220,
+                    url: property.mainImageUrl,
+                    height: 140,
+                    borderRadius: BorderRadius.zero,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    property.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: ListingBadge(isForSale: property.isForSale),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on_outlined,
-                        size: 13,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(width: 2),
-                      Expanded(
-                        child: Text(
-                          property.cityName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: _FavoriteButton(
+                      isFavorite: property.isFavorite,
+                      onTap: onFavoriteTap,
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${property.price.toStringAsFixed(0)} \$',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      property.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on_outlined,
+                          size: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: 2),
+                        Expanded(
+                          child: Text(
+                            property.cityName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -220,6 +232,7 @@ class PropertyListTile extends StatelessWidget {
             Stack(
               children: [
                 _PropertyImage(
+                  width: 100,
                   url: property.mainImageUrl,
                   height: 90,
                   borderRadius: BorderRadius.circular(14),

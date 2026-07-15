@@ -11,6 +11,7 @@ import 'package:akare/features/agent_profile/domain/usecases/sign_out_usecase.da
 import 'package:akare/features/agent_profile/domain/usecases/update_agent_profile_usecase.dart';
 import 'package:akare/features/agent_profile/presentation/cubit/agent_profile_cubit.dart';
 import 'package:akare/features/auth/domain/usecases/user_session.dart';
+import 'package:akare/features/comparison/presentation/cubit/compare_selection_cubit.dart';
 import 'package:akare/features/my_properties/data/datasources/my_properties_remote_datasource.dart';
 import 'package:akare/features/my_properties/data/repositories/my_properties_repository_impl.dart';
 import 'package:akare/features/my_properties/domain/repositories/my_properties_repository.dart';
@@ -26,6 +27,11 @@ import 'package:akare/features/notifications/domain/repositories/notifications_r
 import 'package:akare/features/notifications/domain/usecases/mark_notification_read_usecase.dart';
 import 'package:akare/features/notifications/domain/usecases/watch_notifications_usecase.dart';
 import 'package:akare/features/notifications/presentation/cubit/notifications_cubit.dart';
+import 'package:akare/features/price_history/data/datasources/price_history_remote_datasource.dart';
+import 'package:akare/features/price_history/data/repositories/price_history_repository_impl.dart';
+import 'package:akare/features/price_history/domain/repositories/price_history_repository.dart';
+import 'package:akare/features/price_history/domain/usecases/get_price_history_usecase.dart';
+import 'package:akare/features/price_history/presentation/cubit/price_history_cubit.dart';
 import 'package:akare/features/property_form/data/datasources/property_form_remote_datasource.dart';
 import 'package:akare/features/property_form/data/repositories/property_form_repository_impl.dart';
 import 'package:akare/features/property_form/domain/repositories/property_form_repository.dart';
@@ -169,7 +175,18 @@ void registerAgentFeatureDependencies() {
   sl.registerLazySingleton<AgentDashboardRemoteDataSource>(
     () => AgentDashboardRemoteDataSourceImpl(supabase), // كان sl()
   );
+  /////////////////////////////////////
+  sl.registerLazySingleton(() => CompareSelectionCubit());
 
+  //----------------price history----------------
+  sl.registerLazySingleton<PriceHistoryRemoteDataSource>(
+    () => PriceHistoryRemoteDataSourceImpl(supabase),
+  );
+  sl.registerLazySingleton<PriceHistoryRepository>(
+    () => PriceHistoryRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetPriceHistoryUseCase(sl()));
+  sl.registerFactory(() => PriceHistoryCubit(getPriceHistory: sl()));
   // ---------------- My Properties ----------------
   sl.registerFactory(
     () => MyPropertiesCubit(

@@ -73,8 +73,13 @@ dependencies:
   firebase_messaging: ^15.1.5
   flutter_local_notifications: ^18.0.1
   permission_handler: ^11.3.1
+  #--------------------------
   qr_flutter: ^4.1.0
-
+  path_provider: ^2.1.5
+  #-------------------storage----------------
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  connectivity_plus: ^6.1.0
 
 
 

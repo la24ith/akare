@@ -1,4 +1,4 @@
-import "package:akare/core/errors/failures.dart";
+import "package:akare/core/error/failures.dart";
 import "package:akare/features/my_properties/domain/entities/agent_property_detail_entity.dart";
 import "package:dartz/dartz.dart";
 import "package:postgrest/postgrest.dart";

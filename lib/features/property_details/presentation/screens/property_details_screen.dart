@@ -1,9 +1,13 @@
 import 'package:akare/core/constants/app_colors.dart';
 import 'package:akare/core/di/injection_container.dart';
+import 'package:akare/features/price_history/presentation/widgets/price_history_timeline.dart';
+import 'package:akare/features/property_details/domain/entities/agent_entity.dart';
 import 'package:akare/features/property_details/presentation/widgets/property_image_gallery.dart';
+import 'package:akare/features/property_details/presentation/widgets/share_property_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 // exposes `sl` (GetIt.instance) — adjust path/name if yours differs
 import '../../../home/presentation/widgets/home_shimmer.dart';
 import '../../../home/presentation/widgets/property_card.dart';
@@ -87,12 +91,9 @@ class _PropertyDetailsView extends StatelessWidget {
                           onFavoriteTap: () => context
                               .read<PropertyDetailsCubit>()
                               .toggleFavorite(),
-                          onShareTap: () => SharePlus.instance.share(
-                            ShareParams(
-                              text:
-                                  '${property.title} — ${property.price.toStringAsFixed(0)} د.أ',
-                            ),
-                          ),
+                          onShareTap: () =>
+                              sharePropertyAsImage(context, property),
+
                           propertyId: property.id,
                           propertyTitle: property.title,
                         ),
@@ -234,12 +235,16 @@ class _PropertyDetailsView extends StatelessWidget {
                               icon: Icons.map_rounded,
                               title: 'الموقع',
                             ),
+
                             const SizedBox(height: 10),
                             LocationCard(
                               addressText: property.addressText,
                               latitude: property.latitude,
                               longitude: property.longitude,
                             ),
+                            const SizedBox(height: 20),
+
+                            PriceHistoryTimeline(propertyId: property.id),
                             const SizedBox(height: 26),
                             const _SectionHeader(
                               icon: Icons.badge_rounded,
@@ -326,8 +331,45 @@ class _SectionHeader extends StatelessWidget {
 /// Adjust the two callbacks (onCall / onMessage) to match however your
 /// agent model exposes phone number / WhatsApp so it actually dials out.
 class _BottomContactBar extends StatelessWidget {
-  final dynamic agent;
+  final AgentEntity agent; // كان dynamic
   const _BottomContactBar({required this.agent});
+
+  Future<void> _call() async {
+    final cleanNumber = _normalizePhoneNumber(agent.phone);
+    final uri = Uri(scheme: 'tel', path: cleanNumber);
+    if (await canLaunchUrl(uri)) await launchUrl(uri);
+  }
+
+  Future<void> _whatsapp() async {
+    final digits = _normalizePhoneNumber(agent.phone).replaceAll('+', '');
+    final uri = Uri.parse('https://wa.me/$digits');
+    if (await canLaunchUrl(uri))
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  /// يحوّل أي صيغة رقم مخزّنة (محلي بصفر، أو دولي بدون +، أو حتى صحيح
+  /// أصلًا) لصيغة دولية موحّدة +963XXXXXXXXX. عدّل "963" لو سوقك الأساسي
+  /// دولة تانية.
+  String _normalizePhoneNumber(String rawPhone) {
+    var digits = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (digits.startsWith('00963')) {
+      digits = digits.substring(2); // 00963xxxxxxxxx → 963xxxxxxxxx
+    } else if (digits.startsWith('0963')) {
+      digits = digits.substring(
+        1,
+      ); // 0963xxxxxxxxx → 963xxxxxxxxx (هذا حالتك بالضبط)
+    } else if (digits.startsWith('963')) {
+      // صحيح أصلًا، بلا تغيير
+    } else if (digits.startsWith('0')) {
+      digits =
+          '963${digits.substring(1)}'; // رقم محلي بصفر بس بدون بادئة دولة أصلًا → أضفها
+    } else {
+      digits = '963$digits'; // رقم بلا صفر وبلا بادئة دولة إطلاقًا
+    }
+
+    return '+$digits';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -352,9 +394,8 @@ class _BottomContactBar extends StatelessWidget {
         children: [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () {
-                // TODO: hook up to agent phone number
-              },
+              onPressed:
+                  _call, // ← كان: () { // TODO: hook up to agent phone number }
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.accent,
                 side: BorderSide(color: AppColors.accent.withOpacity(0.4)),
@@ -374,9 +415,8 @@ class _BottomContactBar extends StatelessWidget {
           Expanded(
             flex: 2,
             child: ElevatedButton.icon(
-              onPressed: () {
-                // TODO: hook up to whatsapp / in-app chat
-              },
+              onPressed:
+                  _whatsapp, // ← كان: () { // TODO: hook up to whatsapp / in-app chat }
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accent,
                 foregroundColor: Colors.white,

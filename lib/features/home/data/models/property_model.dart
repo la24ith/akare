@@ -33,7 +33,10 @@ class PropertyModel extends PropertyEntity {
   /// [isFavorite] is resolved separately (against the current user's
   /// favorites) and passed in by the repository, since Postgres has no
   /// per-row "is this mine" concept without a join on `auth.uid()`.
-  factory PropertyModel.fromSupabase(Map<String, dynamic> row, {bool isFavorite = false}) {
+  factory PropertyModel.fromSupabase(
+    Map<String, dynamic> row, {
+    bool isFavorite = false,
+  }) {
     final images = (row['property_images'] as List? ?? []);
     String? mainImage;
     if (images.isNotEmpty) {
@@ -59,4 +62,36 @@ class PropertyModel extends PropertyEntity {
       isFavorite: isFavorite,
     );
   }
+  // أضف داخل PropertyModel (home/data/models/property_model.dart)
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'price': price,
+    'listing_type': listingType,
+    'property_type_name': propertyTypeName,
+    'city_name': cityName,
+    'rooms_count': roomsCount,
+    'bathrooms_count': bathroomsCount,
+    'area_sqm': areaSqm,
+    'main_image_url': mainImageUrl,
+    'views_count': viewsCount,
+    'is_favorite': isFavorite,
+  };
+
+  factory PropertyModel.fromCacheJson(Map<String, dynamic> json) =>
+      PropertyModel(
+        id: json['id'],
+        title: json['title'],
+        price: (json['price'] as num).toDouble(),
+        listingType: json['listing_type'],
+        propertyTypeName: json['property_type_name'],
+        cityName: json['city_name'],
+        roomsCount: json['rooms_count'],
+        bathroomsCount: json['bathrooms_count'],
+        areaSqm: (json['area_sqm'] as num).toDouble(),
+        mainImageUrl: json['main_image_url'],
+        viewsCount: json['views_count'] ?? 0,
+        isFavorite: json['is_favorite'] ?? false,
+      );
 }

@@ -105,10 +105,7 @@ class _PropertyImageGalleryState extends State<PropertyImageGallery> {
                   onTap: widget.onBack,
                 ),
                 const Spacer(),
-                _CircleIconButton(
-                  icon: Icons.share_outlined,
-                  onTap: widget.onShareTap,
-                ),
+                _CircleIconButton(icon: Icons.share, onTap: widget.onShareTap),
                 const SizedBox(width: 10),
                 _CircleIconButton(
                   icon: widget.isFavorite
@@ -119,6 +116,7 @@ class _PropertyImageGalleryState extends State<PropertyImageGallery> {
                       : AppColors.textPrimary,
                   onTap: widget.onFavoriteTap,
                 ),
+                const SizedBox(width: 10),
                 _CircleIconButton(
                   // أو _CircleIconButton حسب أي نسخة عندك من الشاشة
                   icon: Icons.qr_code_rounded,

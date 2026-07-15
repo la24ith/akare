@@ -28,7 +28,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(const AuthLoading());
     final result = await loginUseCase(email: email, password: password);
     result.fold((failure) => emit(AuthError(failure.message)), (user) async {
-      await PushNotificationService.onUserLoggedIn();
+      //    await PushNotificationService.onUserLoggedIn();
       emit(AuthSuccess(user));
     });
   }

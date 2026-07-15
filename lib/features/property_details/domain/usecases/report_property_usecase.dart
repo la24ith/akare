@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
-import 'package:akare/core/errors/failures.dart';
+import 'package:akare/core/error/failures.dart';
 import 'package:akare/core/usecace/usecase.dart';
 import '../repositories/property_details_repository.dart';
 

@@ -1,6 +1,9 @@
+import 'dart:async';
+
+import 'package:akare/core/network/connectivity_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:akare/core/errors/failures.dart';
+import 'package:akare/core/error/failures.dart';
 import 'package:akare/core/usecace/usecase.dart';
 import '../../domain/usecases/get_featured_properties_usecase.dart';
 import '../../domain/usecases/get_latest_properties_usecase.dart';
@@ -11,17 +14,24 @@ class HomeCubit extends Cubit<HomeState> {
   final GetPropertyTypesUseCase getPropertyTypes;
   final GetFeaturedPropertiesUseCase getFeaturedProperties;
   final GetLatestPropertiesUseCase getLatestProperties;
+  StreamSubscription<bool>? _connectivitySub;
 
   HomeCubit({
     required this.getPropertyTypes,
     required this.getFeaturedProperties,
     required this.getLatestProperties,
-  }) : super(const HomeState());
+  }) : super(const HomeState()) {
+    _connectivitySub = ConnectivityService.onStatusChange.listen(
+      (isOnline) => emit(state.copyWith(isOffline: !isOnline)),
+    );
+  }
 
   /// Called once from initState. Sections load independently so a slow
   /// "featured" call never blocks categories or the latest list from
   /// appearing as soon as they're ready.
   Future<void> loadHome() async {
+    final online = await ConnectivityService.isOnline();
+    emit(state.copyWith(isOffline: !online));
     await Future.wait([
       _loadCategories(),
       _loadFeatured(),
@@ -109,5 +119,11 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> loadMoreLatest() async {
     if (state.isLoadingMore || state.hasReachedMax) return;
     await _loadLatest();
+  }
+
+  @override
+  Future<void> close() {
+    _connectivitySub?.cancel();
+    return super.close();
   }
 }

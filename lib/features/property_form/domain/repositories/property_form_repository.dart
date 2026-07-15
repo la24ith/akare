@@ -1,5 +1,5 @@
 import "dart:io";
-import "package:akare/core/errors/failures.dart";
+import "package:akare/core/error/failures.dart";
 import "package:dartz/dartz.dart";
 import "../entities/property_edit_data_entity.dart";
 import "../entities/property_form_lookups_entity.dart";

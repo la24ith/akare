@@ -1,5 +1,6 @@
 import 'package:akare/core/constants/app_colors.dart';
 import 'package:akare/core/di/injection_container.dart';
+import 'package:akare/core/widgets/offline_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -63,24 +64,36 @@ class _HomeViewState extends State<_HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: RefreshIndicator(
-        color: AppColors.primary,
-        onRefresh: () => context.read<HomeCubit>().refresh(),
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            _HeaderSliver(),
-            const SliverToBoxAdapter(child: SizedBox(height: 8)),
-            _CategoriesSliver(
-              selectedCategoryId: _selectedCategoryId,
-              onSelect: (id) => setState(() => _selectedCategoryId = id),
+      body: Column(
+        children: [
+          BlocBuilder<HomeCubit, HomeState>(
+            buildWhen: (p, c) => p.isOffline != c.isOffline,
+            builder: (context, state) => state.isOffline
+                ? const OfflineBanner()
+                : const SizedBox.shrink(),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              color: AppColors.primary,
+              onRefresh: () => context.read<HomeCubit>().refresh(),
+              child: CustomScrollView(
+                controller: _scrollController,
+                slivers: [
+                  _HeaderSliver(),
+                  const SliverToBoxAdapter(child: SizedBox(height: 8)),
+                  _CategoriesSliver(
+                    selectedCategoryId: _selectedCategoryId,
+                    onSelect: (id) => setState(() => _selectedCategoryId = id),
+                  ),
+                  const _FeaturedSliver(),
+                  const _LatestHeaderSliver(),
+                  const _LatestListSliver(),
+                  const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                ],
+              ),
             ),
-            const _FeaturedSliver(),
-            const _LatestHeaderSliver(),
-            const _LatestListSliver(),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -240,7 +253,7 @@ class _FeaturedSliver extends StatelessWidget {
             children: [
               const SectionHeader(title: 'عقارات مميزة'),
               SizedBox(
-                height: 232,
+                height: 234,
                 child:
                     (state.featuredStatus == SectionStatus.loading ||
                         state.featuredStatus == SectionStatus.initial)
@@ -330,10 +343,10 @@ class _LatestListSliver extends StatelessWidget {
             return PropertyListTile(
               property: property,
               onTap: () {
-                // context.push('/property/${property.id}');
+                context.push('/property/${property.id}');
               },
               onFavoriteTap: () {
-                // context.read<HomeCubit>().toggleFavorite(property.id);
+                //   context.read<HomeCubit>().toggleFavorite(property.id);
               },
             );
           },

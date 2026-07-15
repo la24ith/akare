@@ -9,6 +9,7 @@ class HomeState extends Equatable {
   final SectionStatus categoriesStatus;
   final SectionStatus featuredStatus;
   final SectionStatus latestStatus;
+  final bool isOffline;
 
   final List<PropertyTypeEntity> categories;
   final List<PropertyEntity> featuredProperties;
@@ -27,6 +28,7 @@ class HomeState extends Equatable {
     this.categories = const [],
     this.featuredProperties = const [],
     this.latestProperties = const [],
+    this.isOffline = false,
     this.isLoadingMore = false,
     this.hasReachedMax = false,
     this.currentPage = 1,
@@ -44,6 +46,7 @@ class HomeState extends Equatable {
     List<PropertyEntity>? featuredProperties,
     List<PropertyEntity>? latestProperties,
     bool? isLoadingMore,
+    bool? isOffline,
     bool? hasReachedMax,
     int? currentPage,
     String? errorMessage,
@@ -56,6 +59,7 @@ class HomeState extends Equatable {
       featuredProperties: featuredProperties ?? this.featuredProperties,
       latestProperties: latestProperties ?? this.latestProperties,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      isOffline: isOffline ?? this.isOffline,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       currentPage: currentPage ?? this.currentPage,
       errorMessage: errorMessage,
@@ -64,15 +68,16 @@ class HomeState extends Equatable {
 
   @override
   List<Object?> get props => [
-        categoriesStatus,
-        featuredStatus,
-        latestStatus,
-        categories,
-        featuredProperties,
-        latestProperties,
-        isLoadingMore,
-        hasReachedMax,
-        currentPage,
-        errorMessage,
-      ];
+    categoriesStatus,
+    featuredStatus,
+    latestStatus,
+    categories,
+    featuredProperties,
+    latestProperties,
+    isLoadingMore,
+    hasReachedMax,
+    currentPage,
+    errorMessage,
+    isOffline,
+  ];
 }

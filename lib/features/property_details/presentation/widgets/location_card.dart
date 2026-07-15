@@ -60,7 +60,46 @@ class LocationCard extends StatelessWidget {
                     userAgentPackageName: _userAgent,
                   ),
                   MarkerLayer(
-                    markers: [_MapPin(point: point, size: 44) as Marker],
+                    markers: [
+                      Marker(
+                        point: point,
+                        width: 48,
+                        height: 60,
+                        alignment: Alignment.topCenter,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(9),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 3,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.home_rounded,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                            CustomPaint(
+                              size: const Size(10, 8),
+                              painter: _TrianglePainter(AppColors.primary),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

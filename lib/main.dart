@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'core/cache/local_cache_service.dart';
 import 'core/di/injection_container.dart' as di;
+import 'core/di/injection_container.dart' as DeepLinkService;
 import 'core/network/supabase_config.dart';
 import 'core/notifications/local_notification_service.dart';
 import 'core/notifications/push_notification_service.dart';
@@ -19,8 +21,10 @@ Future<void> main() async {
   );
 
   await di.init();
+  await LocalCacheService.init(); // ← ضيف هاد قبل runApp
   await LocalNotificationService.init();
-  await PushNotificationService.init();
+  //await PushNotificationService.init();
+  //await DeepLinkService.init(appRouter);
 
   runApp(const RealEstateApp());
 }

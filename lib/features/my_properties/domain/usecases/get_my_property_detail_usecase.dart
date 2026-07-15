@@ -1,5 +1,5 @@
 // lib/features/my_properties/domain/usecases/get_my_property_detail_usecase.dart
-import 'package:akare/core/errors/failures.dart';
+import 'package:akare/core/error/failures.dart';
 import 'package:akare/core/usecace/usecase.dart';
 import 'package:dartz/dartz.dart';
 

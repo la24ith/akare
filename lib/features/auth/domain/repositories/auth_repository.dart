@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/errors/failures.dart';
+import '../../../../core/error/failures.dart';
 import '../entities/user_entity.dart';
 
 /// الـ domain layer بيعرف بس "الشكل" (interface) — التنفيذ الفعلي في data layer.
