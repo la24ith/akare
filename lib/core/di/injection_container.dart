@@ -12,6 +12,8 @@ import 'package:akare/features/agent_profile/domain/usecases/update_agent_profil
 import 'package:akare/features/agent_profile/presentation/cubit/agent_profile_cubit.dart';
 import 'package:akare/features/auth/domain/usecases/user_session.dart';
 import 'package:akare/features/comparison/presentation/cubit/compare_selection_cubit.dart';
+import 'package:akare/features/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:akare/features/home/domain/usecases/get_favorites_usecase.dart';
 import 'package:akare/features/my_properties/data/datasources/my_properties_remote_datasource.dart';
 import 'package:akare/features/my_properties/data/repositories/my_properties_repository_impl.dart';
 import 'package:akare/features/my_properties/domain/repositories/my_properties_repository.dart';
@@ -32,6 +34,13 @@ import 'package:akare/features/price_history/data/repositories/price_history_rep
 import 'package:akare/features/price_history/domain/repositories/price_history_repository.dart';
 import 'package:akare/features/price_history/domain/usecases/get_price_history_usecase.dart';
 import 'package:akare/features/price_history/presentation/cubit/price_history_cubit.dart';
+import 'package:akare/features/profile/data/datasources/profile_remote_datasource.dart';
+import 'package:akare/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:akare/features/profile/domain/repositories/profile_repository.dart';
+import 'package:akare/features/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:akare/features/profile/domain/usecases/update_profile_usecase.dart';
+import 'package:akare/features/profile/domain/usecases/upload_avatar_usecase.dart';
+import 'package:akare/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:akare/features/property_form/data/datasources/property_form_remote_datasource.dart';
 import 'package:akare/features/property_form/data/repositories/property_form_repository_impl.dart';
 import 'package:akare/features/property_form/domain/repositories/property_form_repository.dart';
@@ -272,4 +281,25 @@ void registerAgentFeatureDependencies() {
       markAllAsReadUseCase: sl(),
     ),
   );
+  //profile
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(supabase),
+  );
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetProfileUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
+  sl.registerLazySingleton(() => UploadAvatarUseCase(sl()));
+  sl.registerFactory(
+    () => ProfileCubit(
+      getProfile: sl(),
+      updateProfileUseCase: sl(),
+      uploadAvatarUseCase: sl(),
+      logoutUseCase: sl(), // نفس LogoutUseCase من ميزة auth، مسجّل أصلًا
+    ),
+  );
+  //--------------favorites----------------
+  sl.registerLazySingleton(() => GetFavoritesUseCase(sl()));
+  sl.registerFactory(() => FavoritesCubit(getFavorites: sl()));
 }

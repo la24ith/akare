@@ -1,5 +1,5 @@
 import "package:akare/core/error/failures.dart";
-import "package:akare/core/usecace/usecase.dart";
+import "package:akare/core/usecase/usecase.dart";
 import "package:dartz/dartz.dart";
 
 import "../entities/agent_profile_entity.dart";

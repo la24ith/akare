@@ -1,6 +1,6 @@
 // lib/features/notifications/presentation/cubit/notifications_cubit.dart
 import 'dart:async';
-import 'package:akare/core/usecace/usecase.dart';
+import 'package:akare/core/usecase/usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/mark_notification_read_usecase.dart';
 import '../../domain/usecases/watch_notifications_usecase.dart';

@@ -1,4 +1,4 @@
-import "package:akare/core/constants/app_colors.dart";
+import "package:akare/core/theme/app_colors.dart";
 import "package:akare/core/di/injection_container.dart";
 import "package:akare/features/home/presentation/widgets/home_section_states.dart";
 import "package:akare/features/notifications/presentation/widgets/notification_bell.dart";

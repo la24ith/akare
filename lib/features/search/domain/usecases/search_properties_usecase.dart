@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
 import 'package:akare/core/error/failures.dart';
-import 'package:akare/core/usecace/usecase.dart';
+import 'package:akare/core/usecase/usecase.dart';
 import '../../../home/domain/entities/property_entity.dart';
 import '../entities/property_filter.dart';
 import '../repositories/search_repository.dart';

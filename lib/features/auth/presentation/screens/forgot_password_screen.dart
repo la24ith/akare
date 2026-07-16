@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/di/injection_container.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -38,7 +38,10 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
         listener: (context, state) {
           if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: AppColors.error),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppColors.error,
+              ),
             );
           }
         },
@@ -67,7 +70,9 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
                       controller: _emailController,
                       label: 'البريد الإلكتروني',
                       prefixIcon: Icons.email_outlined,
-                      validator: (v) => (v == null || !v.contains('@')) ? 'بريد إلكتروني غير صحيح' : null,
+                      validator: (v) => (v == null || !v.contains('@'))
+                          ? 'بريد إلكتروني غير صحيح'
+                          : null,
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
@@ -76,14 +81,17 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
                           : () {
                               if (!_formKey.currentState!.validate()) return;
                               context.read<AuthCubit>().forgotPassword(
-                                    email: _emailController.text.trim(),
-                                  );
+                                email: _emailController.text.trim(),
+                              );
                             },
                       child: isLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
                             )
                           : const Text('إرسال الرابط'),
                     ),

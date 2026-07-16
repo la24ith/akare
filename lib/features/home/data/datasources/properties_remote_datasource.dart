@@ -16,8 +16,13 @@ const _propertyColumns = '''
 abstract class PropertiesRemoteDataSource {
   Future<List<PropertyTypeModel>> getPropertyTypes();
   Future<List<PropertyModel>> getFeaturedProperties();
-  Future<List<PropertyModel>> getLatestProperties({required int page, required int limit});
+  Future<List<PropertyModel>> getLatestProperties({
+    required int page,
+    required int limit,
+    int? propertyTypeId,
+  });
   Future<void> toggleFavorite(String propertyId);
+  Future<List<PropertyModel>> getFavorites();
 }
 
 class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
@@ -31,14 +36,19 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
   Future<Set<String>> _favoriteIds() async {
     final uid = _userId;
     if (uid == null) return {};
-    final rows = await supabase.from('favorites').select('property_id').eq('user_id', uid);
+    final rows = await supabase
+        .from('favorites')
+        .select('property_id')
+        .eq('user_id', uid);
     return (rows as List).map((r) => r['property_id'].toString()).toSet();
   }
 
   @override
   Future<List<PropertyTypeModel>> getPropertyTypes() async {
     final rows = await supabase.from('property_types').select();
-    return (rows as List).map((r) => PropertyTypeModel.fromSupabase(r)).toList();
+    return (rows as List)
+        .map((r) => PropertyTypeModel.fromSupabase(r))
+        .toList();
   }
 
   @override
@@ -55,23 +65,45 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
         .order('views_count', ascending: false)
         .limit(6);
     return (rows as List)
-        .map((r) => PropertyModel.fromSupabase(r, isFavorite: favorites.contains(r['id'].toString())))
+        .map(
+          (r) => PropertyModel.fromSupabase(
+            r,
+            isFavorite: favorites.contains(r['id'].toString()),
+          ),
+        )
         .toList();
   }
 
   @override
-  Future<List<PropertyModel>> getLatestProperties({required int page, required int limit}) async {
+  Future<List<PropertyModel>> getLatestProperties({
+    required int page,
+    required int limit,
+    int? propertyTypeId, // ← جديد
+  }) async {
     final favorites = await _favoriteIds();
     final from = (page - 1) * limit;
     final to = from + limit - 1;
-    final rows = await supabase
+
+    var query = supabase
         .from('properties')
         .select(_propertyColumns)
-        .eq('status', 'active')
+        .eq('status', 'active');
+
+    if (propertyTypeId != null) {
+      query = query.eq('property_type_id', propertyTypeId); // ← جديد
+    }
+
+    final rows = await query
         .order('created_at', ascending: false)
         .range(from, to);
+
     return (rows as List)
-        .map((r) => PropertyModel.fromSupabase(r, isFavorite: favorites.contains(r['id'].toString())))
+        .map(
+          (r) => PropertyModel.fromSupabase(
+            r,
+            isFavorite: favorites.contains(r['id'].toString()),
+          ),
+        )
         .toList();
   }
 
@@ -90,9 +122,31 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
         .maybeSingle();
 
     if (existing == null) {
-      await supabase.from('favorites').insert({'user_id': uid, 'property_id': propertyId});
+      await supabase.from('favorites').insert({
+        'user_id': uid,
+        'property_id': propertyId,
+      });
     } else {
       await supabase.from('favorites').delete().eq('id', existing['id']);
     }
+  }
+
+  // بـ properties_remote_datasource.dart:
+  @override
+  Future<List<PropertyModel>> getFavorites() async {
+    final uid = _userId;
+    if (uid == null) return [];
+
+    final rows = await supabase
+        .from('favorites')
+        .select('properties($_propertyColumns)')
+        .eq('user_id', uid)
+        .order('created_at', ascending: false);
+
+    return (rows as List)
+        .map(
+          (r) => PropertyModel.fromSupabase(r['properties'], isFavorite: true),
+        )
+        .toList();
   }
 }

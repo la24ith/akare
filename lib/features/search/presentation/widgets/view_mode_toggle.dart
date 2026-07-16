@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/theme/app_colors.dart';
 import '../cubit/search_state.dart';
 
 class ViewModeToggle extends StatelessWidget {

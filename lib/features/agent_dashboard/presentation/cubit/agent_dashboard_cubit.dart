@@ -1,4 +1,4 @@
-import "package:akare/core/usecace/usecase.dart";
+import "package:akare/core/usecase/usecase.dart";
 import "package:equatable/equatable.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "../../domain/entities/dashboard_stats_entity.dart";

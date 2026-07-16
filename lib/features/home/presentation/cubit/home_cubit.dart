@@ -4,7 +4,7 @@ import 'package:akare/core/network/connectivity_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:akare/core/error/failures.dart';
-import 'package:akare/core/usecace/usecase.dart';
+import 'package:akare/core/usecase/usecase.dart';
 import '../../domain/usecases/get_featured_properties_usecase.dart';
 import '../../domain/usecases/get_latest_properties_usecase.dart';
 import '../../domain/usecases/get_property_types_usecase.dart';
@@ -92,8 +92,12 @@ class HomeCubit extends Cubit<HomeState> {
     );
 
     final result = await getLatestProperties(
-      GetLatestPropertiesParams(page: page),
+      GetLatestPropertiesParams(
+        page: page,
+        propertyTypeId: state.selectedCategoryId,
+      ),
     );
+
     result.fold(
       (failure) => emit(
         state.copyWith(
@@ -119,6 +123,18 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> loadMoreLatest() async {
     if (state.isLoadingMore || state.hasReachedMax) return;
     await _loadLatest();
+  }
+
+  // بـ home_cubit.dart — أضف دالة جديدة، واستخدمها بـ _loadLatest
+  void selectCategory(int? categoryId) {
+    final isSameSelection = state.selectedCategoryId == categoryId;
+    emit(
+      state.copyWith(
+        selectedCategoryId: categoryId,
+        clearCategory: isSameSelection || categoryId == null,
+      ),
+    );
+    _loadLatest(reset: true); // أعد تحميل "أحدث العقارات" بالفلتر الجديد
   }
 
   @override

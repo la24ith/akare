@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/theme/app_colors.dart';
 import '../../domain/entities/property_entity.dart';
 
 class ListingBadge extends StatelessWidget {

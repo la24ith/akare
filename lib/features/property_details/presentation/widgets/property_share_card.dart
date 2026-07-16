@@ -1,5 +1,5 @@
 // lib/features/property_details/presentation/widgets/property_share_card.dart
-import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/theme/app_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 

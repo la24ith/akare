@@ -4,9 +4,12 @@ import 'package:akare/features/agent_dashboard/presentation/widgets/agent_scaffo
 import 'package:akare/features/agent_profile/presentation/screens/agent_profile_screen.dart';
 import 'package:akare/features/auth/domain/usecases/user_session.dart';
 import 'package:akare/features/comparison/presentation/screens/comparison_screen.dart';
+import 'package:akare/features/favorites/presentation/screens/favorites_screen.dart';
+import 'package:akare/features/home/presentation/widgets/client_scaffold.dart';
 import 'package:akare/features/my_properties/presentation/screens/agent_property_detail_screen.dart';
 import 'package:akare/features/my_properties/presentation/screens/my_properties_screen.dart';
 import 'package:akare/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:akare/features/profile/presentation/screens/profile_screen.dart';
 import 'package:akare/features/property_details/presentation/screens/property_details_screen.dart';
 import 'package:akare/features/property_form/presentation/screens/property_form_screen.dart';
 import 'package:akare/features/search/presentation/screens/search_screen.dart';
@@ -62,8 +65,7 @@ final GoRouter appRouter = GoRouter(
       path: '/forgot-password',
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
-    GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
-    GoRoute(path: '/search', builder: (context, state) => const SearchScreen()),
+
     GoRoute(
       path: '/compare',
       builder: (context, state) => const ComparisonScreen(),
@@ -117,6 +119,45 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: '/agent/profile',
               builder: (context, state) => const AgentProfileScreen(),
+            ),
+          ],
+        ),
+      ],
+    ),
+
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) =>
+          ClientScaffold(navigationShell: navigationShell),
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/home',
+              builder: (context, state) => const HomeScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/search',
+              builder: (context, state) => const SearchScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/favorites',
+              builder: (context, state) => const FavoritesScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/profile',
+              builder: (context, state) => const ProfileScreen(),
             ),
           ],
         ),

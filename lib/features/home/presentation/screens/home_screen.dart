@@ -1,4 +1,4 @@
-import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/theme/app_colors.dart';
 import 'package:akare/core/di/injection_container.dart';
 import 'package:akare/core/widgets/offline_banner.dart';
 import 'package:flutter/material.dart';
@@ -85,10 +85,11 @@ class _HomeViewState extends State<_HomeView> {
                     selectedCategoryId: _selectedCategoryId,
                     onSelect: (id) => setState(() => _selectedCategoryId = id),
                   ),
-                  const _FeaturedSliver(),
+
                   const _LatestHeaderSliver(),
                   const _LatestListSliver(),
                   const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                  const _FeaturedSliver(),
                 ],
               ),
             ),
@@ -222,8 +223,9 @@ class _CategoriesSliver extends StatelessWidget {
                 return CategoryChip(
                   type: type,
                   isSelected: selectedCategoryId == type.id,
-                  onTap: () =>
-                      onSelect(selectedCategoryId == type.id ? null : type.id),
+                  onTap: () => context.read<HomeCubit>().selectCategory(
+                    type.id,
+                  ), // ← يستدعي الفلتر ا
                 );
               },
             ),
@@ -259,14 +261,12 @@ class _FeaturedSliver extends StatelessWidget {
                         state.featuredStatus == SectionStatus.initial)
                     ? ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        reverse: true,
                         padding: const EdgeInsets.only(right: 20),
                         itemCount: 3,
                         itemBuilder: (_, __) => const PropertyCardShimmer(),
                       )
                     : ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        reverse: true,
                         padding: const EdgeInsets.only(right: 20),
                         itemCount: state.featuredProperties.length,
                         itemBuilder: (context, index) {

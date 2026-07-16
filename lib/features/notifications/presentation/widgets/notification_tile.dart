@@ -1,5 +1,5 @@
 // lib/features/notifications/presentation/widgets/notification_tile.dart
-import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/notification_entity.dart';
 

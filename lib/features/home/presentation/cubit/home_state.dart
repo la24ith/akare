@@ -10,6 +10,7 @@ class HomeState extends Equatable {
   final SectionStatus featuredStatus;
   final SectionStatus latestStatus;
   final bool isOffline;
+  final int? selectedCategoryId;
 
   final List<PropertyTypeEntity> categories;
   final List<PropertyEntity> featuredProperties;
@@ -33,6 +34,7 @@ class HomeState extends Equatable {
     this.hasReachedMax = false,
     this.currentPage = 1,
     this.errorMessage,
+    this.selectedCategoryId,
   });
 
   bool get isLatestEmpty =>
@@ -49,7 +51,10 @@ class HomeState extends Equatable {
     bool? isOffline,
     bool? hasReachedMax,
     int? currentPage,
+
     String? errorMessage,
+    int? selectedCategoryId,
+    bool clearCategory = false,
   }) {
     return HomeState(
       categoriesStatus: categoriesStatus ?? this.categoriesStatus,
@@ -63,6 +68,9 @@ class HomeState extends Equatable {
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       currentPage: currentPage ?? this.currentPage,
       errorMessage: errorMessage,
+      selectedCategoryId: clearCategory
+          ? null
+          : (selectedCategoryId ?? this.selectedCategoryId),
     );
   }
 
@@ -79,5 +87,6 @@ class HomeState extends Equatable {
     currentPage,
     errorMessage,
     isOffline,
+    selectedCategoryId,
   ];
 }

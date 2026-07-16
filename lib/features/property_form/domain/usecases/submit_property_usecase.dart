@@ -1,7 +1,7 @@
 import "package:dartz/dartz.dart";
 import "package:equatable/equatable.dart";
 import "package:akare/core/error/failures.dart";
-import "package:akare/core/usecace/usecase.dart";
+import "package:akare/core/usecase/usecase.dart";
 import "../entities/property_submit_data.dart";
 import "../repositories/property_form_repository.dart";
 

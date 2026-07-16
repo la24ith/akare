@@ -1,4 +1,4 @@
-import "package:akare/core/constants/app_colors.dart";
+import "package:akare/core/theme/app_colors.dart";
 import "package:akare/core/di/injection_container.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";

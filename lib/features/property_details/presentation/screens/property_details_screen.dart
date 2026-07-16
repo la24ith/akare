@@ -1,4 +1,4 @@
-import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/theme/app_colors.dart';
 import 'package:akare/core/di/injection_container.dart';
 import 'package:akare/features/price_history/presentation/widgets/price_history_timeline.dart';
 import 'package:akare/features/property_details/domain/entities/agent_entity.dart';

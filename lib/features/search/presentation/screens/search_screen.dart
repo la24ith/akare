@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/theme/app_colors.dart';
 import 'package:akare/core/di/injection_container.dart';
 import 'package:akare/features/comparison/presentation/cubit/compare_selection_cubit.dart';
 import 'package:akare/features/comparison/presentation/widgets/compare_floating_bar.dart';

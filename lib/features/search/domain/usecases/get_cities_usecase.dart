@@ -1,8 +1,8 @@
 import 'package:akare/core/error/failures.dart';
-import 'package:akare/core/usecace/usecase.dart';
+import 'package:akare/core/usecase/usecase.dart';
 import 'package:dartz/dartz.dart';
 
-import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/theme/app_colors.dart';
 
 import '../entities/city_entity.dart';
 import '../repositories/search_repository.dart';

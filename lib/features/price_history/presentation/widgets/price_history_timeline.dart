@@ -1,5 +1,5 @@
 // lib/features/price_history/presentation/widgets/price_history_timeline.dart
-import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

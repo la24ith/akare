@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/theme/app_colors.dart';
 
 class PropertySpecsGrid extends StatelessWidget {
   final double areaSqm;

@@ -1,5 +1,5 @@
 // lib/features/property_details/presentation/widgets/property_qr_sheet.dart
-import 'package:akare/core/constants/app_colors.dart';
+import 'package:akare/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';

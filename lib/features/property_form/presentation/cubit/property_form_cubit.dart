@@ -1,5 +1,5 @@
 import "dart:io";
-import "package:akare/core/usecace/usecase.dart";
+import "package:akare/core/usecase/usecase.dart";
 import "package:akare/features/home/domain/entities/property_type_entity.dart";
 import "package:akare/features/search/domain/entities/city_entity.dart";
 import "package:collection/collection.dart";

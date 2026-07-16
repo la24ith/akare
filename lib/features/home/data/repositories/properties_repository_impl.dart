@@ -14,6 +14,7 @@ import '../models/property_type_model.dart';
 const _kFeaturedKey = 'cache_featured_properties';
 const _kLatestPage1Key = 'cache_latest_properties_p1';
 const _kTypesKey = 'cache_property_types';
+const _kFavoritesKey = 'cache_favorite_properties';
 
 class PropertiesRepositoryImpl implements PropertiesRepository {
   final PropertiesRemoteDataSource remoteDataSource;
@@ -62,15 +63,17 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
   Future<Either<Failure, List<PropertyEntity>>> getLatestProperties({
     required int page,
     int limit = 10,
+    int? propertyTypeId, // ← جديد
   }) async {
     try {
       final result = await remoteDataSource.getLatestProperties(
         page: page,
         limit: limit,
+        propertyTypeId: propertyTypeId, // ← جديد
       );
-      // نكاش الصفحة الأولى بس — صفحات "تحميل المزيد" بدون كاش (منطقي: لو
-      // مقطوع نت أصلًا ما رح يقدر يحمّل صفحات إضافية سواء بكاش أو بدونه).
-      if (page == 1) {
+      // نكاش صفحة 1 بس، وبس لما مفيش فلتر نشط (كاش "أحدث العقارات" العام
+      // بدون فلتر، مش كل تركيبة فلتر ممكنة — أبسط وكافي لهالحالة)
+      if (page == 1 && propertyTypeId == null) {
         await LocalCacheService.set(
           _kLatestPage1Key,
           result.map((e) => e.toJson()).toList(),
@@ -78,7 +81,7 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
       }
       return Right(result);
     } catch (e) {
-      if (page != 1) return Left(_failureFor(e));
+      if (page != 1 || propertyTypeId != null) return Left(_failureFor(e));
       return _fallback<List<PropertyEntity>>(
         _kLatestPage1Key,
         (data) =>
@@ -116,5 +119,25 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
     }
     if (e is AuthException) return ServerFailure(e.message);
     return const ServerFailure('تحقق من اتصالك بالإنترنت');
+  }
+
+  // بـ properties_repository_impl.dart:
+  @override
+  Future<Either<Failure, List<PropertyEntity>>> getFavorites() async {
+    try {
+      final result = await remoteDataSource.getFavorites();
+      await LocalCacheService.set(
+        _kFavoritesKey,
+        result.map((e) => e.toJson()).toList(),
+      );
+      return Right(result);
+    } catch (e) {
+      return _fallback<List<PropertyEntity>>(
+        _kFavoritesKey,
+        (data) =>
+            (data as List).map((e) => PropertyModel.fromCacheJson(e)).toList(),
+        _failureFor(e),
+      );
+    }
   }
 }

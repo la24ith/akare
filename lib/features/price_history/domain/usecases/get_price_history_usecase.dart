@@ -1,6 +1,6 @@
 // lib/features/price_history/domain/usecases/get_price_history_usecase.dart
 import 'package:akare/core/error/failures.dart';
-import 'package:akare/core/usecace/usecase.dart';
+import 'package:akare/core/usecase/usecase.dart';
 import 'package:dartz/dartz.dart';
 
 import '../entities/price_point_entity.dart';

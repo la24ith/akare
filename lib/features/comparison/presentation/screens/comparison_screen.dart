@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection_container.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../home/domain/entities/property_entity.dart';
 import '../cubit/compare_selection_cubit.dart';
 import '../cubit/compare_selection_state.dart';

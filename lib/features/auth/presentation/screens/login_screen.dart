@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/di/injection_container.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -43,9 +43,9 @@ class _LoginViewState extends State<_LoginView> {
   void _submit(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
     context.read<AuthCubit>().login(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
   }
 
   @override
@@ -58,7 +58,10 @@ class _LoginViewState extends State<_LoginView> {
               context.go('/home');
             } else if (state is AuthError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message), backgroundColor: AppColors.error),
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: AppColors.error,
+                ),
               );
             }
           },
@@ -73,12 +76,19 @@ class _LoginViewState extends State<_LoginView> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 60),
-                    const Icon(Icons.apartment_rounded, size: 64, color: AppColors.primary),
+                    const Icon(
+                      Icons.apartment_rounded,
+                      size: 64,
+                      color: AppColors.primary,
+                    ),
                     const SizedBox(height: 12),
                     const Text(
                       'تسجيل الدخول',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 32),
                     AuthTextField(
@@ -87,8 +97,10 @@ class _LoginViewState extends State<_LoginView> {
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'الرجاء إدخال البريد الإلكتروني';
-                        if (!value.contains('@')) return 'صيغة البريد الإلكتروني غير صحيحة';
+                        if (value == null || value.isEmpty)
+                          return 'الرجاء إدخال البريد الإلكتروني';
+                        if (!value.contains('@'))
+                          return 'صيغة البريد الإلكتروني غير صحيحة';
                         return null;
                       },
                     ),
@@ -99,8 +111,10 @@ class _LoginViewState extends State<_LoginView> {
                       prefixIcon: Icons.lock_outline,
                       obscureText: true,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'الرجاء إدخال كلمة المرور';
-                        if (value.length < 6) return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                        if (value == null || value.isEmpty)
+                          return 'الرجاء إدخال كلمة المرور';
+                        if (value.length < 6)
+                          return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
                         return null;
                       },
                     ),
@@ -119,7 +133,10 @@ class _LoginViewState extends State<_LoginView> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
                             )
                           : const Text('دخول'),
                     ),

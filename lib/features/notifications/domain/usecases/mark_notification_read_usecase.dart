@@ -1,6 +1,6 @@
 // lib/features/notifications/domain/usecases/mark_notification_read_usecase.dart
 import 'package:akare/core/error/failures.dart';
-import 'package:akare/core/usecace/usecase.dart';
+import 'package:akare/core/usecase/usecase.dart';
 import 'package:dartz/dartz.dart';
 
 import '../repositories/notifications_repository.dart';

@@ -1,6 +1,6 @@
 import "package:dartz/dartz.dart";
 import "package:akare/core/error/failures.dart";
-import "package:akare/core/usecace/usecase.dart";
+import "package:akare/core/usecase/usecase.dart";
 import "../entities/property_edit_data_entity.dart";
 import "../repositories/property_form_repository.dart";
 

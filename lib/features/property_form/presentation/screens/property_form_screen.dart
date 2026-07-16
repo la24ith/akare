@@ -1,4 +1,4 @@
-import "package:akare/core/constants/app_colors.dart";
+import "package:akare/core/theme/app_colors.dart";
 import "package:akare/core/di/injection_container.dart";
 import "package:akare/features/property_form/presentation/widgets/location_picker_screen.dart";
 import "package:flutter/material.dart";

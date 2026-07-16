@@ -34,7 +34,7 @@ class _Palette {
   static const danger = Color(0xFFEF4444);
 }
 
-const _fontFamily = 'SF Pro Display'; // falls back to Inter/system if absent
+const _fontFamily = 'Cairo'; // falls back to Inter/system if absent
 
 /// Public entry point.
 class AgentPropertyDetailsScreen extends StatelessWidget {
