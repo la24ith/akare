@@ -1,16 +1,28 @@
-import 'package:flutter/foundation.dart';
-import '../../../../core/network/supabase_client.dart'; // أو المسار الصحيح عندك لـ `supabase`
+import 'package:akare/core/network/supabase_client.dart';
+import 'package:flutter/material.dart';
 
 class UserSession extends ChangeNotifier {
   String? role;
   bool isLoadingRole = false;
 
-  Future<void> loadRole() async {
+  // إذا فيه طلب شغّال أصلًا، أي نداء تاني لازم يستنى نفس النتيجة —
+  // مش يبلش طلب مستقل جديد. هذا بالضبط اللي كان ناقص وسبب التذبذب.
+  Future<void>? _inFlight;
+
+  Future<void> loadRole() {
+    if (_inFlight != null) return _inFlight!;
+
     final uid = supabase.auth.currentUser?.id;
     if (uid == null) {
       role = null;
-      return;
+      return Future.value();
     }
+
+    _inFlight = _fetchRole(uid).whenComplete(() => _inFlight = null);
+    return _inFlight!;
+  }
+
+  Future<void> _fetchRole(String uid) async {
     isLoadingRole = true;
     try {
       final row = await supabase
@@ -27,10 +39,9 @@ class UserSession extends ChangeNotifier {
 
   void clear() {
     role = null;
+    _inFlight = null;
     notifyListeners();
   }
 }
 
-// هاد السطر هو المفقود — بدونه ما في متغيّر اسمه userSession يقدر
-// app_router.dart يشوفه، حتى لو الاستيراد نفسه صحيح.
 final userSession = UserSession();

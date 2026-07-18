@@ -43,7 +43,17 @@ final GoRouter appRouter = GoRouter(
 
     // مسجل دخول وعلى صفحة auth (أو أول فتح للتطبيق بجلسة محفوظة) → حدّد وجهته حسب دوره
     if (isAuthRoute) {
-      await userSession.loadRole(); // يجيب الدور مرة وحدة ويخزنه
+      // لو الدور معروف أصلًا من هالجلسة، ما في داعي تجيبه من جديد كل مرة
+      // الـ redirect ينفّذ (وهذا بالذات كان بيزيد فرصة التسابق).
+      if (userSession.role == null) {
+        await userSession.loadRole();
+      }
+
+      final redirectTo = state.uri.queryParameters['redirect'];
+      if (redirectTo != null && redirectTo.isNotEmpty) {
+        return redirectTo;
+      }
+
       return userSession.role == 'agent' ? '/agent/dashboard' : '/home';
     }
 
@@ -83,7 +93,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/agent/property/:id',
       builder: (context, state) =>
-          AgentPropertyDetailsScreen(propertyId: state.pathParameters['id']!),
+          AgentPropertyDetailScreen(propertyId: state.pathParameters['id']!),
     ),
     GoRoute(
       path: "/agent/properties/add",

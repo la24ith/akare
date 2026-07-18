@@ -134,7 +134,7 @@ class _MyPropertiesViewState extends State<_MyPropertiesView> {
           final property = state.properties[index];
           return MyPropertyTile(
             property: property,
-            onTap: () => context.push("/agent/properties/${property.id}"),
+            onTap: () => context.push("/agent/property/${property.id}"),
             onEdit: () => context.push("/agent/properties/edit/${property.id}"),
             onViewAsUser: () => context.push("/property/${property.id}"),
             onDelete: () => _confirmDelete(context, property),

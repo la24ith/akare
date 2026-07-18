@@ -32,6 +32,9 @@ class _AgentDashboardView extends StatelessWidget {
       backgroundColor: const Color(0xFFF7F8F8),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primary,
+        heroTag:
+            null, // يلغي الـ Hero animation تمامًا لهاد الزر بس، وما بيتصادم مع أي زر تاني
+
         onPressed: () => context.push("/agent/properties/add"),
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text("إضافة عقار", style: TextStyle(color: Colors.white)),
@@ -128,7 +131,7 @@ class _AgentDashboardView extends StatelessWidget {
                               width: 160,
                               child: GestureDetector(
                                 onTap: () =>
-                                    context.push("/agent/properties/${p.id}"),
+                                    context.push("/agent/property/${p.id}"),
                                 child: HeroPropertyPlaceholder(
                                   propertyId: p.id,
                                   imageUrl: p.mainImageUrl,

@@ -81,10 +81,7 @@ class _HomeViewState extends State<_HomeView> {
                 slivers: [
                   _HeaderSliver(),
                   const SliverToBoxAdapter(child: SizedBox(height: 8)),
-                  _CategoriesSliver(
-                    selectedCategoryId: _selectedCategoryId,
-                    onSelect: (id) => setState(() => _selectedCategoryId = id),
-                  ),
+                  _CategoriesSliver(),
 
                   const _LatestHeaderSliver(),
                   const _LatestListSliver(),
@@ -167,12 +164,7 @@ class _HeaderSliver extends StatelessWidget {
 }
 
 class _CategoriesSliver extends StatelessWidget {
-  final int? selectedCategoryId;
-  final ValueChanged<int?> onSelect;
-  const _CategoriesSliver({
-    required this.selectedCategoryId,
-    required this.onSelect,
-  });
+  const _CategoriesSliver(); // ← بدون أي باراميترات — كان فيها selectedCategoryId و onSelect
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +172,9 @@ class _CategoriesSliver extends StatelessWidget {
       child: BlocBuilder<HomeCubit, HomeState>(
         buildWhen: (p, c) =>
             p.categoriesStatus != c.categoriesStatus ||
-            p.categories != c.categories,
+            p.categories != c.categories ||
+            p.selectedCategoryId !=
+                c.selectedCategoryId, // ← أضفناها، كانت ناقصة
         builder: (context, state) {
           if (state.categoriesStatus == SectionStatus.loading ||
               state.categoriesStatus == SectionStatus.initial) {
@@ -188,7 +182,6 @@ class _CategoriesSliver extends StatelessWidget {
               height: 90,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                reverse: true,
                 padding: const EdgeInsets.only(right: 16),
                 itemCount: 5,
                 itemBuilder: (_, __) => const Padding(
@@ -208,24 +201,25 @@ class _CategoriesSliver extends StatelessWidget {
               ),
             );
           }
-          if (state.categoriesStatus == SectionStatus.error)
+          if (state.categoriesStatus == SectionStatus.error) {
             return const SizedBox.shrink();
+          }
 
           return SizedBox(
             height: 90,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              reverse: true, // RTL-friendly horizontal scroll
               padding: const EdgeInsets.only(right: 16),
               itemCount: state.categories.length,
               itemBuilder: (context, index) {
                 final type = state.categories[index];
                 return CategoryChip(
                   type: type,
-                  isSelected: selectedCategoryId == type.id,
-                  onTap: () => context.read<HomeCubit>().selectCategory(
-                    type.id,
-                  ), // ← يستدعي الفلتر ا
+                  isSelected:
+                      state.selectedCategoryId ==
+                      type.id, // ← من state مباشرة، مو من باراميتر
+                  onTap: () =>
+                      context.read<HomeCubit>().selectCategory(type.id),
                 );
               },
             ),
